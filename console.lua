@@ -541,13 +541,17 @@ function Hook()
 	love.keyboard.setKeyRepeat(true)
 	love.graphics.setFont(font)
 	love.update = function(dt)
-		unhooked.update(dt)
+		if (unhooked.update ~= nil) then
+			unhooked.update(dt)
+		end
 		update(dt)
 	end
 	love.draw = function()
 		love.graphics.setFont(unhooked.font)
 		love.graphics.setColor(unhooked.color)
-		unhooked.draw()
+		if (unhooked.draw ~= nil) then
+			unhooked.draw()
+		end
 		love.graphics.setFont(font)
 		draw()
 	end
