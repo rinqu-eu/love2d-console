@@ -290,7 +290,7 @@ do -- history
 	function MoveHistoryUp()
 		DeselectAll()
 		history_idx = math.max(1, history_idx - 1)
-		input_buffer = history_buffer[history_idx]
+		input_buffer = history_buffer[history_idx] or ""
 		MoveCursorEnd()
 	end
 end
