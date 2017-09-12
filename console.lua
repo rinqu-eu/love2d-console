@@ -38,317 +38,310 @@ blink_time = 0
 
 num_output_buffer_lines = 0
 
-do -- helpers
-	function isAltDown()
-		return love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt")
-	end
+-- helpers
+function isAltDown()
+	return love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt")
+end
 
-	function isCtrlDown()
-		return love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
-	end
+function isCtrlDown()
+	return love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
+end
 
-	function isShiftDown()
-		return love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
-	end
+function isShiftDown()
+	return love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
+end
 
-	function clamp(min, value, max)
-		if (value > max) then
-			return max
-		elseif (value < min) then
-			return min
-		else
-			return value
-		end
+function clamp(min, value, max)
+	if (value > max) then
+		return max
+	elseif (value < min) then
+		return min
+	else
+		return value
 	end
 end
 
-do -- cursor
-	function UpdateCursor()
-		local x = 4 + font_w + cursor_idx * font_w
-		ui.cursor.x = x
-	end
+-- cursor
+function UpdateCursor()
+	local x = 4 + font_w + cursor_idx * font_w
+	ui.cursor.x = x
+end
 
-	function MoveCursorRight()
-		if (console.ui.selected.visible == true) then
-			MoveCursorToPosition(math.max(selected_idx1, selected_idx2))
-			DeselectAll()
-			return
-		end
-		cursor_idx = math.min(cursor_idx + 1, input_buffer:len())
-		UpdateCursor()
+function MoveCursorRight()
+	if (console.ui.selected.visible == true) then
+		MoveCursorToPosition(math.max(selected_idx1, selected_idx2))
+		DeselectAll()
+		return
 	end
+	cursor_idx = math.min(cursor_idx + 1, input_buffer:len())
+	UpdateCursor()
+end
 
-	function MoveCursorLeft()
-		if (console.ui.selected.visible == true) then
-			MoveCursorToPosition(math.min(selected_idx1, selected_idx2))
-			DeselectAll()
-			return
-		end
-		cursor_idx = math.max(0, cursor_idx - 1)
-		UpdateCursor()
+function MoveCursorLeft()
+	if (console.ui.selected.visible == true) then
+		MoveCursorToPosition(math.min(selected_idx1, selected_idx2))
+		DeselectAll()
+		return
 	end
+	cursor_idx = math.max(0, cursor_idx - 1)
+	UpdateCursor()
+end
 
-	function MoveCursorToPosition(pos)
-		cursor_idx = clamp(0, pos, input_buffer:len())
-		UpdateCursor()
-	end
+function MoveCursorToPosition(pos)
+	cursor_idx = clamp(0, pos, input_buffer:len())
+	UpdateCursor()
+end
 
-	function MoveCursorByOffset(offset)
-		cursor_idx = clamp(0, cursor_idx + offset, input_buffer:len())
-		UpdateCursor()
-	end
+function MoveCursorByOffset(offset)
+	cursor_idx = clamp(0, cursor_idx + offset, input_buffer:len())
+	UpdateCursor()
+end
 
-	function MoveCursorHome()
-		cursor_idx = 0
-		UpdateCursor()
-	end
+function MoveCursorHome()
+	cursor_idx = 0
+	UpdateCursor()
+end
 
-	function MoveCursorEnd()
-		cursor_idx = input_buffer:len()
-		UpdateCursor()
+function MoveCursorEnd()
+	cursor_idx = input_buffer:len()
+	UpdateCursor()
+end
+
+ -- selected
+function UpdateSelected()
+	if (selected_idx1 == -1 or selected_idx1 == selected_idx2) then
+		ui.selected.visible = false
+	else
+		local left = math.min(selected_idx1, selected_idx2)
+		local right = math.max(selected_idx1, selected_idx2)
+		local x = 4 + font_w + left * font_w
+		local w = (right - left) * font_w
+
+		ui.selected.x = x
+		ui.selected.w = w
+		ui.selected.visible = true
 	end
 end
 
-do -- selected
-	function UpdateSelected()
-		if (selected_idx1 == -1 or selected_idx1 == selected_idx2) then
-			ui.selected.visible = false
-		else
-			local left = math.min(selected_idx1, selected_idx2)
-			local right = math.max(selected_idx1, selected_idx2)
-			local x = 4 + font_w + left * font_w
-			local w = (right - left) * font_w
+function DeselectAll()
+	selected_idx1 = -1
+	selected_idx2 = -1
 
-			ui.selected.x = x
-			ui.selected.w = w
-			ui.selected.visible = true
-		end
+	UpdateSelected()
+end
+
+function SelectAll()
+	selected_idx1 = 0
+	selected_idx2 = input_buffer:len()
+
+	MoveCursorEnd()
+	UpdateSelected()
+end
+
+function SelectCursorRight()
+	if (cursor_idx == input_buffer:len()) then return end
+
+	if (console.ui.selected.visible == false) then
+		selected_idx1 = cursor_idx
+	end
+	cursor_idx = math.min(cursor_idx + 1, input_buffer:len())
+	selected_idx2 = cursor_idx
+	UpdateCursor()
+	UpdateSelected()
+end
+
+function SelectCursorLeft()
+	if (cursor_idx == 0) then return end
+
+	cursor_idx = math.max(0, cursor_idx - 1)
+	if (console.ui.selected.visible == false) then
+		selected_idx1 = cursor_idx + 1
+	end
+	selected_idx2 = cursor_idx
+	UpdateCursor()
+	UpdateSelected()
+end
+
+function RemoveSelected()
+	local left_idx = math.min(selected_idx1, selected_idx2)
+	local right_idx = math.max(selected_idx1, selected_idx2)
+
+	local left = input_buffer:sub(1, left_idx)
+	local right = input_buffer:sub(right_idx + 1, input_buffer:len())
+
+	input_buffer =  left .. right
+	MoveCursorToPosition(left_idx)
+	DeselectAll()
+end
+
+-- insert/delete
+function InsertChar(char)
+	if (console.ui.selected.visible == true) then
+		RemoveSelected()
 	end
 
-	function DeselectAll()
-		selected_idx1 = -1
-		selected_idx2 = -1
+	if (cursor_idx == input_buffer:len()) then
+		input_buffer = input_buffer .. char
+	else
+		local left = input_buffer:sub(1, cursor_idx)
+		local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
 
-		UpdateSelected()
+		input_buffer = left .. char .. right
 	end
 
-	function SelectAll()
-		selected_idx1 = 0
-		selected_idx2 = input_buffer:len()
+	MoveCursorRight()
+end
 
-		MoveCursorEnd()
-		UpdateSelected()
-	end
-
-	function SelectCursorRight()
-		if (cursor_idx == input_buffer:len()) then return end
-
-		if (console.ui.selected.visible == false) then
-			selected_idx1 = cursor_idx
-		end
-		cursor_idx = math.min(cursor_idx + 1, input_buffer:len())
-		selected_idx2 = cursor_idx
-		UpdateCursor()
-		UpdateSelected()
-	end
-
-	function SelectCursorLeft()
+function RemovePrevChar()
+	if (console.ui.selected.visible == true) then
+		RemoveSelected()
+	else
 		if (cursor_idx == 0) then return end
 
-		cursor_idx = math.max(0, cursor_idx - 1)
-		if (console.ui.selected.visible == false) then
-			selected_idx1 = cursor_idx + 1
-		end
-		selected_idx2 = cursor_idx
-		UpdateCursor()
-		UpdateSelected()
-	end
-
-	function RemoveSelected()
-		local left_idx = math.min(selected_idx1, selected_idx2)
-		local right_idx = math.max(selected_idx1, selected_idx2)
-
-		local left = input_buffer:sub(1, left_idx)
-		local right = input_buffer:sub(right_idx + 1, input_buffer:len())
+		local left = input_buffer:sub(1, cursor_idx - 1)
+		local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
 
 		input_buffer =  left .. right
+		MoveCursorLeft()
+	end
+end
+
+function RemoveNextChar()
+	if (console.ui.selected.visible == true) then
+		RemoveSelected()
+	else
+		if (cursor_idx == input_buffer:len()) then return end
+
+		local left = input_buffer:sub(1, cursor_idx)
+		local right = input_buffer:sub(cursor_idx + 2, input_buffer:len())
+
+		input_buffer =  left .. right
+	end
+end
+
+function Cut()
+	if (console.ui.selected.visible == true) then
+		local left_idx = math.min(selected_idx1, selected_idx2)
+		local right_idx = math.max(selected_idx1, selected_idx2)
+		local left = input_buffer:sub(1, left_idx)
+		local right = input_buffer:sub(right_idx + 1, input_buffer:len())
+		love.system.setClipboardText(input_buffer:sub(left_idx + 1, right_idx))
+		input_buffer = left .. right
 		MoveCursorToPosition(left_idx)
 		DeselectAll()
 	end
 end
 
-do -- insert/delete
-	function InsertChar(char)
-		if (console.ui.selected.visible == true) then
-			RemoveSelected()
-		end
-
-		if (cursor_idx == input_buffer:len()) then
-			input_buffer = input_buffer .. char
-		else
-			local left = input_buffer:sub(1, cursor_idx)
-			local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
-
-			input_buffer = left .. char .. right
-		end
-
-		MoveCursorRight()
+function Copy()
+	if (console.ui.selected.visible == true) then
+		local left_idx = math.min(selected_idx1, selected_idx2)
+		local right_idx = math.max(selected_idx1, selected_idx2)
+		love.system.setClipboardText(input_buffer:sub(left_idx + 1, right_idx))
 	end
+end
 
-	function RemovePrevChar()
-		if (console.ui.selected.visible == true) then
-			RemoveSelected()
-		else
-			if (cursor_idx == 0) then return end
-
-			local left = input_buffer:sub(1, cursor_idx - 1)
-			local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
-
-			input_buffer =  left .. right
-			MoveCursorLeft()
-		end
+function Paste()
+	if (console.ui.selected.visible == true) then
+		local left_idx = math.min(selected_idx1, selected_idx2)
+		local right_idx = math.max(selected_idx1, selected_idx2)
+		local left = input_buffer:sub(1, left_idx)
+		local right = input_buffer:sub(right_idx + 1, input_buffer:len())
+		input_buffer = left .. love.system.getClipboardText() .. right
+		DeselectAll()
+	else
+		local left = input_buffer:sub(1, cursor_idx)
+		local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
+		input_buffer = left .. love.system.getClipboardText() .. right
 	end
+	MoveCursorByOffset(love.system.getClipboardText():len())
+end
 
-	function RemoveNextChar()
-		if (console.ui.selected.visible == true) then
-			RemoveSelected()
-		else
-			if (cursor_idx == input_buffer:len()) then return end
+function ClearInputBuffer()
+	input_buffer = ""
+	MoveCursorHome()
+end
 
-			local left = input_buffer:sub(1, cursor_idx)
-			local right = input_buffer:sub(cursor_idx + 2, input_buffer:len())
+-- history
+function AddToHistory(msg)
+	table.insert(history_buffer, msg)
+	history_idx = #history_buffer + 1
+end
 
-			input_buffer =  left .. right
-		end
-	end
+function ClearHistoryBuffer()
+	history_buffer = {}
+	history_idx = #history_buffer
+end
 
-	function Cut()
-		if (console.ui.selected.visible == true) then
-			local left_idx = math.min(selected_idx1, selected_idx2)
-			local right_idx = math.max(selected_idx1, selected_idx2)
-			local left = input_buffer:sub(1, left_idx)
-			local right = input_buffer:sub(right_idx + 1, input_buffer:len())
-			love.system.setClipboardText(input_buffer:sub(left_idx + 1, right_idx))
-			input_buffer = left .. right
-			MoveCursorToPosition(left_idx)
-			DeselectAll()
-		end
-	end
-
-	function Copy()
-		if (console.ui.selected.visible == true) then
-			local left_idx = math.min(selected_idx1, selected_idx2)
-			local right_idx = math.max(selected_idx1, selected_idx2)
-			love.system.setClipboardText(input_buffer:sub(left_idx + 1, right_idx))
-		end
-	end
-
-	function Paste()
-		if (console.ui.selected.visible == true) then
-			local left_idx = math.min(selected_idx1, selected_idx2)
-			local right_idx = math.max(selected_idx1, selected_idx2)
-			local left = input_buffer:sub(1, left_idx)
-			local right = input_buffer:sub(right_idx + 1, input_buffer:len())
-			input_buffer = left .. love.system.getClipboardText() .. right
-			DeselectAll()
-		else
-			local left = input_buffer:sub(1, cursor_idx)
-			local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
-			input_buffer = left .. love.system.getClipboardText() .. right
-		end
-		MoveCursorByOffset(love.system.getClipboardText():len())
-	end
-
-	function ClearInputBuffer()
+function MoveHistoryDown()
+	DeselectAll()
+	history_idx = math.min(history_idx + 1, #history_buffer + 1)
+	if (history_idx == #history_buffer + 1) then
 		input_buffer = ""
-		MoveCursorHome()
+	else
+		input_buffer = history_buffer[history_idx]
 	end
+	MoveCursorEnd()
 end
 
-do -- history
-	function AddToHistory(msg)
-		table.insert(history_buffer, msg)
-		history_idx = #history_buffer + 1
-	end
+function MoveHistoryUp()
+	DeselectAll()
+	history_idx = math.max(1, history_idx - 1)
+	input_buffer = history_buffer[history_idx] or ""
+	MoveCursorEnd()
+end
 
-	function ClearHistoryBuffer()
-		history_buffer = {}
-		history_idx = #history_buffer
-	end
+-- output
+function AddToOutput(msg)
+	if (msg == "") then msg = "nil" end
+	if (msg == nil) then msg = "nil" end
 
-	function MoveHistoryDown()
+	msg = tostring(msg)
+	table.insert(output_buffer, msg)
+end
+
+function ClearOutputBuffer()
+	output_buffer = {}
+	output_idx = 0
+end
+
+function MoveOutputBy(n)
+	output_idx = clamp(0, output_idx + n, math.max(#output_buffer - num_output_buffer_lines, 0))
+end
+
+function MoveOutputUp()
+	MoveOutputBy(10)
+end
+
+function MoveOutputDown()
+	MoveOutputBy(-10)
+end
+
+-- special commands
+function Exit()
+	ClearInputBuffer()
+	console:Hide()
+end
+
+function Clear()
+	ClearHistoryBuffer()
+	ClearOutputBuffer()
+	ClearInputBuffer()
+end
+
+function Quit()
+	love.event.quit()
+end
+
+function Git()
+	print(git_link)
+	ClearInputBuffer()
+end
+
+function ClearEsc()
+	if (console.ui.selected.visible == true) then
 		DeselectAll()
-		history_idx = math.min(history_idx + 1, #history_buffer + 1)
-		if (history_idx == #history_buffer + 1) then
-			input_buffer = ""
-		else
-			input_buffer = history_buffer[history_idx]
-		end
-		MoveCursorEnd()
-	end
-
-	function MoveHistoryUp()
-		DeselectAll()
-		history_idx = math.max(1, history_idx - 1)
-		input_buffer = history_buffer[history_idx] or ""
-		MoveCursorEnd()
-	end
-end
-
-do -- output
-	function AddToOutput(msg)
-		if (msg == "") then msg = "nil" end
-		if (msg == nil) then msg = "nil" end
-
-		msg = tostring(msg)
-		table.insert(output_buffer, msg)
-	end
-
-	function ClearOutputBuffer()
-		output_buffer = {}
-		output_idx = 0
-	end
-
-	function MoveOutputBy(n)
-		output_idx = clamp(0, output_idx + n, math.max(#output_buffer - num_output_buffer_lines, 0))
-	end
-
-	function MoveOutputUp()
-		MoveOutputBy(10)
-	end
-
-	function MoveOutputDown()
-		MoveOutputBy(-10)
-	end
-end
-
-do -- special commands
-	function Exit()
+	else
 		ClearInputBuffer()
-		console:Hide()
-	end
-
-	function Clear()
-		ClearHistoryBuffer()
-		ClearOutputBuffer()
-		ClearInputBuffer()
-	end
-
-	function Quit()
-		love.event.quit()
-	end
-
-	function Git()
-		print(git_link)
-		ClearInputBuffer()
-	end
-
-	function ClearEsc()
-		if (console.ui.selected.visible == true) then
-			DeselectAll()
-		else
-			ClearInputBuffer()
-		end
 	end
 end
 
@@ -435,43 +428,41 @@ local key_map = {
 	["^v"] = Paste,
 }
 
-do -- hooks and overrides
-	function update(dt)
-		blink_time = blink_time + dt
+-- hooks and overrides
+function update(dt)
+	blink_time = blink_time + dt
 
-		if (blink_time >= blink_duration) then
-			ui.cursor.visible = not ui.cursor.visible
-			blink_time = blink_time - blink_duration
-		end
+	if (blink_time >= blink_duration) then
+		ui.cursor.visible = not ui.cursor.visible
+		blink_time = blink_time - blink_duration
+	end
+end
+
+function draw()
+	DrawUI()
+end
+
+function wheelmoved(_, dir)
+	MoveOutputBy(dir)
+end
+
+function keypressed(key)
+	local key_original = key
+	local key_encoded = EncodeKey(key)
+
+	if (key_map[key_encoded] == nil) then
+		key = key_original
+	else
+		key = key_map[key_encoded]
 	end
 
-	function draw()
-		DrawUI()
+	if (type(key) == "string" and key == key:match(".")) then
+		InsertChar(key)
+	elseif (type(key) == "function") then
+		key()
+	else
+		-- printf("Unsupported: key: %s\tencoded: %s", key, key_encoded)
 	end
-
-	function wheelmoved(_, dir)
-		MoveOutputBy(dir)
-	end
-
-	function keypressed(key)
-		local key_original = key
-		local key_encoded = EncodeKey(key)
-
-		if (key_map[key_encoded] == nil) then
-			key = key_original
-		else
-			key = key_map[key_encoded]
-		end
-
-		if (type(key) == "string" and key == key:match(".")) then
-			InsertChar(key)
-		elseif (type(key) == "function") then
-			key()
-		else
-			-- printf("Unsupported: key: %s\tencoded: %s", key, key_encoded)
-		end
-	end
-
 end
 
 function MakeUI()
