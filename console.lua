@@ -5,6 +5,8 @@ setfenv(1, console)
 
 __VERSION = 0.1
 
+local utf8 = require("utf8")
+
 git_link = "https://github.com/rinqu-eu/love2d-console"
 
 path = ...
@@ -66,6 +68,54 @@ function clamp(min, value, max)
 	end
 end
 
+function utf8.sub(s, i, j)
+	assert(type(s) == "number" or type(s) == "string", string.format("bad argument #1 to 'sub' (string expected, got %s)", type(s) ~= "nil" and type(s) or "no value"))
+	assert(type(i) == "number" or type(tonumber(i)) == "number", string.format("bad argument #2 to 'sub' (number expected, got %s)", type(i) ~= "nil" and type(i) or "no value"))
+	assert(type(j) == "nil" or type(j) == "number" or type(tonumber(j) == "number"), string.format("bad argument #3 to 'sub' (number expeted, got %s)",	type(i)))
+	s, i, j = tostring(s), tonumber(i), tonumber(j)
+
+	local offset_i, offset_j
+	local s_len = utf8.len(s)
+
+	if (i > s_len) then
+		offset_i = utf8.offset(s, s_len + 1)
+	elseif (i < -s_len) then
+		offset_i = 0
+	else
+		offset_i = utf8.offset(s, i)
+	end
+
+	if (j ~= nil) then
+		if (j > s_len or j == -1) then
+			offset_j = utf8.offset(s, s_len + 1) - 1
+		elseif (j < -s_len) then
+			offset_j = 0
+		else
+			offset_j = utf8.offset(s, j + 1) - 1
+		end
+	end
+
+	return string.sub(s, offset_i, offset_j)
+end
+
+function utf8.find(s, pattern, index)
+	-- this is some basic utf8.find that works for just the things I need it
+	-- to work, for the love of God if you ever find this, DO NOT USE IT
+	index = index or 1
+
+	local function depattern(pattern) return string.gsub(pattern, "%%x", "x") end
+	local s_len = utf8.len(s)
+	local p_len = string.len(depattern(pattern))
+
+	for i = index, s_len do
+		local s_ = utf8.sub(s, i, i + p_len - 1)
+
+		if (string.find(s_, pattern)) then
+			return i
+		end
+	end
+end
+
 -- cursor
 function UpdateCursor()
 	local x = 4 + font_w + cursor_idx * font_w
@@ -78,7 +128,7 @@ function MoveCursorRight()
 		DeselectAll()
 		return
 	end
-	cursor_idx = math.min(cursor_idx + 1, input_buffer:len())
+	cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
 	UpdateCursor()
 end
 
@@ -93,12 +143,12 @@ function MoveCursorLeft()
 end
 
 function MoveCursorToPosition(pos)
-	cursor_idx = clamp(0, pos, input_buffer:len())
+	cursor_idx = clamp(0, pos, utf8.len(input_buffer))
 	UpdateCursor()
 end
 
 function MoveCursorByOffset(offset)
-	cursor_idx = clamp(0, cursor_idx + offset, input_buffer:len())
+	cursor_idx = clamp(0, cursor_idx + offset, utf8.len(input_buffer))
 	UpdateCursor()
 end
 
@@ -108,7 +158,7 @@ function MoveCursorHome()
 end
 
 function MoveCursorEnd()
-	cursor_idx = input_buffer:len()
+	cursor_idx = utf8.len(input_buffer)
 	UpdateCursor()
 end
 
@@ -137,19 +187,19 @@ end
 
 function SelectAll()
 	selected_idx1 = 0
-	selected_idx2 = input_buffer:len()
+	selected_idx2 = utf8.len(input_buffer)
 
 	MoveCursorEnd()
 	UpdateSelected()
 end
 
 function SelectCursorRight()
-	if (cursor_idx == input_buffer:len()) then return end
+	if (cursor_idx == utf8.len(input_buffer)) then return end
 
 	if (console.ui.selected.visible == false) then
 		selected_idx1 = cursor_idx
 	end
-	cursor_idx = math.min(cursor_idx + 1, input_buffer:len())
+	cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
 	selected_idx2 = cursor_idx
 	UpdateCursor()
 	UpdateSelected()
@@ -171,8 +221,8 @@ function RemoveSelected()
 	local left_idx = math.min(selected_idx1, selected_idx2)
 	local right_idx = math.max(selected_idx1, selected_idx2)
 
-	local left = input_buffer:sub(1, left_idx)
-	local right = input_buffer:sub(right_idx + 1, input_buffer:len())
+	local left = utf8.sub(input_buffer, 1, left_idx)
+	local right = utf8.sub(input_buffer, right_idx + 1, utf8.len(input_buffer))
 
 	input_buffer =  left .. right
 	MoveCursorToPosition(left_idx)
@@ -181,15 +231,16 @@ end
 
 -- insert/delete
 function InsertChar(char)
+	if (input_buffer == "" and char == "`") then return end
 	if (console.ui.selected.visible == true) then
 		RemoveSelected()
 	end
 
-	if (cursor_idx == input_buffer:len()) then
+	if (cursor_idx == utf8.len(input_buffer)) then
 		input_buffer = input_buffer .. char
 	else
-		local left = input_buffer:sub(1, cursor_idx)
-		local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
+		local left = utf8.sub(input_buffer, 1, cursor_idx)
+		local right = utf8.sub(input_buffer, cursor_idx + 1, utf8.len(input_buffer))
 
 		input_buffer = left .. char .. right
 	end
@@ -203,8 +254,8 @@ function RemovePrevChar()
 	else
 		if (cursor_idx == 0) then return end
 
-		local left = input_buffer:sub(1, cursor_idx - 1)
-		local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
+		local left = utf8.sub(input_buffer, 1, cursor_idx - 1)
+		local right = utf8.sub(input_buffer, cursor_idx + 1, utf8.len(input_buffer))
 
 		input_buffer =  left .. right
 		MoveCursorLeft()
@@ -215,10 +266,10 @@ function RemoveNextChar()
 	if (console.ui.selected.visible == true) then
 		RemoveSelected()
 	else
-		if (cursor_idx == input_buffer:len()) then return end
+		if (cursor_idx == utf8.len(input_buffer)) then return end
 
-		local left = input_buffer:sub(1, cursor_idx)
-		local right = input_buffer:sub(cursor_idx + 2, input_buffer:len())
+		local left = utf8.sub(input_buffer, 1, cursor_idx)
+		local right = utf8.sub(input_buffer, cursor_idx + 2, utf8.len(input_buffer))
 
 		input_buffer =  left .. right
 	end
@@ -228,9 +279,9 @@ function Cut()
 	if (console.ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
-		local left = input_buffer:sub(1, left_idx)
-		local right = input_buffer:sub(right_idx + 1, input_buffer:len())
-		love.system.setClipboardText(input_buffer:sub(left_idx + 1, right_idx))
+		local left = utf8.sub(input_buffer, 1, left_idx)
+		local right = utf8.sub(input_buffer, right_idx + 1, utf8.len(input_buffer))
+		love.system.setClipboardText(utf8.sub(input_buffer, left_idx + 1, right_idx))
 		input_buffer = left .. right
 		MoveCursorToPosition(left_idx)
 		DeselectAll()
@@ -241,7 +292,7 @@ function Copy()
 	if (console.ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
-		love.system.setClipboardText(input_buffer:sub(left_idx + 1, right_idx))
+		love.system.setClipboardText(utf8.sub(input_buffer, left_idx + 1, right_idx))
 	end
 end
 
@@ -249,16 +300,16 @@ function Paste()
 	if (console.ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
-		local left = input_buffer:sub(1, left_idx)
-		local right = input_buffer:sub(right_idx + 1, input_buffer:len())
+		local left = utf8.sub(input_buffer, 1, left_idx)
+		local right = utf8.sub(input_buffer, right_idx + 1, utf8.len(input_buffer))
 		input_buffer = left .. love.system.getClipboardText() .. right
 		DeselectAll()
 	else
-		local left = input_buffer:sub(1, cursor_idx)
-		local right = input_buffer:sub(cursor_idx + 1, input_buffer:len())
+		local left = utf8.sub(input_buffer, 1, cursor_idx)
+		local right = utf8.sub(input_buffer, cursor_idx + 1, utf8.len(input_buffer))
 		input_buffer = left .. love.system.getClipboardText() .. right
 	end
-	MoveCursorByOffset(love.system.getClipboardText():len())
+	MoveCursorByOffset(utf8.len(love.system.getClipboardText()))
 end
 
 function ClearInputBuffer()
@@ -325,7 +376,7 @@ end
 -- special commands
 function Exit()
 	ClearInputBuffer()
-	console:Hide()
+	console.Hide()
 end
 
 function Clear()
@@ -399,13 +450,13 @@ function parse(text)
 	local r_tag = "|r"
 	local r_tag_len = 2
 
-	while (offset <= text:len()) do
-		local t = text:sub(offset)
-		local c_idx = t:find(c_tag)
-		local r_idx = t:find(r_tag)
+	while (offset <= utf8.len(text)) do
+		local t = utf8.sub(text, offset)
+		local c_idx = utf8.find(t, c_tag)
+		local r_idx = utf8.find(t, r_tag)
 
 		if (c_idx == 1) then
-			local color = t:sub(c_idx + 4, c_idx + 9)
+			local color = utf8.sub(t, c_idx + 4, c_idx + 9)
 
 			push(color)
 			offset = offset + c_tag_len
@@ -414,11 +465,11 @@ function parse(text)
 			offset = offset + r_tag_len
 		else
 			local next_tag_idx = (c_idx or r_idx) and math.min(c_idx or math.huge, r_idx or math.huge) or 0
-			local text = t:sub(1, next_tag_idx - 1)
+			local text = utf8.sub(t, 1, next_tag_idx - 1)
 
 			table.insert(parsed, {color = peek() or "ffffff", text = text or ""})
 
-			offset = offset + text:len()
+			offset = offset + utf8.len(text)
 		end
 	end
 
@@ -447,26 +498,7 @@ function _G.info(text)
 	AddToOutput("|cff" .. color_info .. "info: |r" .. text)
 end
 
-key_map = {
-	["+1"] = "!",	["+2"] = "@",	["+3"] = "#",	["+4"] = "$",
-	["+5"] = "%",	["+6"] = "^",	["+7"] = "&",	["+8"] = "*",
-	["+9"] = "(",	["+0"] = ")",	["+-"] = "_",	["+="] = "+",
-
-	["+q"] = "Q",	["+w"] = "W",	["+e"] = "E",	["+r"] = "R",
-	["+t"] = "T",	["+y"] = "Y",	["+u"] = "U",	["+i"] = "I",
-	["+o"] = "O",	["+p"] = "P",	["+["] = "{",	["+]"] = "}",
-	["+\\"] = "|",	["+a"] = "A",	["+s"] = "S",	["+d"] = "D",
-	["+f"] = "F",	["+g"] = "G",	["+h"] = "H",	["+j"] = "J",
-	["+k"] = "K",	["+l"] = "L",	["+;"] = ":",	["+\'"] = "\"",
-	["+z"] = "Z",	["+x"] = "X",	["+c"] = "C",	["+v"] = "V",
-	["+b"] = "B",	["+n"] = "N",	["+m"] = "M",	["+,"] = "<",
-	["+."] = ">",	["+/"] = "?",	["+`"] = "~",
-
-	["kp1"] = "1",	["kp2"] = "2",	["kp3"] = "3",	["kp4"] = "4",
-	["kp5"] = "5",	["kp6"] = "6",	["kp7"] = "7",	["kp8"] = "8",
-	["kp9"] = "9",	["kp0"] = "0",	["kp/"] = "/",	["kp*"] = "*",
-	["kp-"] = "-",	["kp+"] = "+",
-
+keybinds = {
 	["kpenter"] = ExecInputBuffer,
 
 	["left"] = MoveCursorLeft,
@@ -476,8 +508,6 @@ key_map = {
 
 	["+left"] = SelectCursorLeft,
 	["+right"] = SelectCursorRight,
-
-	["space"] = " ",
 
 	["escape"] = ClearEsc,
 
@@ -516,21 +546,10 @@ function wheelmoved(_, dir)
 end
 
 function keypressed(key)
-	local key_original = key
 	local key_encoded = EncodeKey(key)
 
-	if (key_map[key_encoded] == nil) then
-		key = key_original
-	else
-		key = key_map[key_encoded]
-	end
-
-	if (type(key) == "string" and key == key:match(".")) then
-		InsertChar(key)
-	elseif (type(key) == "function") then
-		key()
-	else
-		-- printf("Unsupported: key: %s\tencoded: %s", key, key_encoded)
+	if (keybinds[key_encoded] ~= nil) then
+		keybinds[key_encoded]()
 	end
 end
 
@@ -587,6 +606,10 @@ function HookPrint()
 	end
 end
 
+function textinput(key)
+	InsertChar(key)
+end
+
 function Hook()
 	unhooked.key_repeat = love.keyboard.hasKeyRepeat()
 	unhooked.font = love.graphics.getFont()
@@ -598,6 +621,7 @@ function Hook()
 	unhooked.mousereleased = love.mousereleased
 	unhooked.keypressed = love.keypressed
 	unhooked.keyreleased = love.keyreleased
+	unhooked.textinput = love.textinput
 	love.keyboard.setKeyRepeat(true)
 	love.graphics.setFont(font)
 	love.update = function(dt)
@@ -620,6 +644,7 @@ function Hook()
 	love.mousereleased = mousereleased
 	love.keypressed = keypressed
 	love.keyreleased = keyreleased
+	love.textinput = textinput
 end
 
 function UnHook()
@@ -633,6 +658,7 @@ function UnHook()
 	love.mousereleased = unhooked.mousereleased
 	love.keypressed = unhooked.keypressed
 	love.keyreleased = unhooked.keyreleased
+	love.textinput = unhooked.textinput
 end
 
 function Show()
