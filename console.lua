@@ -3,7 +3,7 @@ console = {}
 setmetatable(console, {__index = _G})
 setfenv(1, console)
 
-__VERSION = 0.1
+__VERSION = 0.2
 
 local utf8 = require("utf8")
 
