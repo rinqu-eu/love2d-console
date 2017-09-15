@@ -419,7 +419,7 @@ function ExecInputBuffer()
 	local func, err = loadstring(input_buffer)
 
 	AddToHistory(input_buffer)
-	AddToOutput("|cff" .. color_com .. input_buffer .. "|r")
+	AddToOutput("|cff" .. color_com .. "exec: |r" .. input_buffer)
 
 	if (err ~= nil) then
 		print(err)
