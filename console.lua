@@ -12,7 +12,7 @@ git_link = "https://github.com/rinqu-eu/love2d-console"
 path = ...
 path = path:sub(1, -9):gsub("%p", "/")
 
-font = love.graphics.newFont(path .."/FiraCode.ttf", 14)
+font = love.graphics.newFont(path .."/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
