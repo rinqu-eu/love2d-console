@@ -203,10 +203,10 @@ function DeselectAll()
 end
 
 function SelectAll()
+	cursor_idx = utf8.len(input_buffer)
 	selected_idx1 = 0
-	selected_idx2 = utf8.len(input_buffer)
-
-	MoveCursorEnd()
+	selected_idx2 = cursor_idx
+	UpdateCursor()
 	UpdateSelected()
 end
 
@@ -382,7 +382,6 @@ function ClearHistoryBuffer()
 end
 
 function MoveHistoryDown()
-	DeselectAll()
 	history_idx = math.min(history_idx + 1, #history_buffer + 1)
 	if (history_idx == #history_buffer + 1) then
 		input_buffer = ""
@@ -393,7 +392,6 @@ function MoveHistoryDown()
 end
 
 function MoveHistoryUp()
-	DeselectAll()
 	history_idx = math.max(1, history_idx - 1)
 	input_buffer = history_buffer[history_idx] or ""
 	MoveCursorEnd()
