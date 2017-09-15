@@ -21,6 +21,7 @@ cursor_style = "block" -- "block" or "line"
 cursor_color = {255, 255, 255, 255}
 selected_color = {170, 170, 170, 127}
 blink_duration = 0.5
+output_jump_by = 7
 
 color_info = "429bf4"
 color_warn = "cecb2f"
@@ -366,11 +367,11 @@ function MoveOutputBy(n)
 end
 
 function MoveOutputUp()
-	MoveOutputBy(10)
+	MoveOutputBy(output_jump_by)
 end
 
 function MoveOutputDown()
-	MoveOutputBy(-10)
+	MoveOutputBy(-output_jump_by)
 end
 
 -- special commands
