@@ -118,8 +118,14 @@ function utf8.find(s, pattern, index)
 end
 
 -- cursor
+function ResetBlink()
+	blink_time = 0
+	ui.cursor.visible = true
+end
+
 function UpdateCursor()
 	local x = 4 + font_w + cursor_idx * font_w
+	ResetBlink()
 	ui.cursor.x = x
 end
 
@@ -671,7 +677,7 @@ function Show()
 	if (is_open == false) then
 		is_open = true
 		Hook()
-		blink_time = 0
+		ResetBlink()
 	end
 end
 
