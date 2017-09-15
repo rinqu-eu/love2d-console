@@ -496,16 +496,16 @@ function parse(text)
 	return usable
 end
 
-function _G.warn(text)
-	AddToOutput("|cff" .. color_warn .. "warning: |r" .. text)
+function _G.warn(...)
+	AddToOutput("|cff" .. color_warn .. "warning:|r", ...)
 end
 
-function _G.err(text)
-	AddToOutput("|cff" .. color_err .. "error: |r" .. text)
+function _G.err(...)
+	AddToOutput("|cff" .. color_err .. "error:|r", ...)
 end
 
-function _G.info(text)
-	AddToOutput("|cff" .. color_info .. "info: |r" .. text)
+function _G.info(...)
+	AddToOutput("|cff" .. color_info .. "info:|r", ...)
 end
 
 keybinds = {
