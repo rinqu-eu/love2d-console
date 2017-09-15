@@ -161,11 +161,13 @@ end
 
 function MoveCursorHome()
 	cursor_idx = 0
+	DeselectAll()
 	UpdateCursor()
 end
 
 function MoveCursorEnd()
 	cursor_idx = utf8.len(input_buffer)
+	DeselectAll()
 	UpdateCursor()
 end
 
