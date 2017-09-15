@@ -248,12 +248,36 @@ function RemoveSelected()
 	DeselectAll()
 end
 
-function SelectJumpCursorLeft()
-
+function JumpCursorLeft()
+	if (string.match(utf8.sub(input_buffer, cursor_idx, cursor_idx), "%p") ~= nil) then
+		cursor_idx = math.max(0, cursor_idx - 1)
+	else
+		local p_idx
+		for i = cursor_idx - 1, 0, -1 do
+			if (string.match(utf8.sub(input_buffer, i, i), "%p") ~= nil) then
+				p_idx = i
+				break
+			end
+		end
+		cursor_idx = p_idx or 0
+	end
+	UpdateCursor()
 end
 
-function SelectJumpCursorRight()
-
+function JumpCursorRight()
+	if (string.match(utf8.sub(input_buffer, cursor_idx + 1, cursor_idx + 1), "%p") ~= nil) then
+		cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
+	else
+		local p_idx
+		for i = cursor_idx, utf8.len(input_buffer) do
+			if (string.match(utf8.sub(input_buffer, i + 1, i + 1), "%p") ~= nil) then
+				p_idx = i
+				break
+			end
+		end
+		cursor_idx = p_idx or utf8.len(input_buffer)
+	end
+	UpdateCursor()
 end
 
 function SelectHome()
@@ -277,6 +301,54 @@ function SelectEnd()
 	end
 
 	cursor_idx = utf8.len(input_buffer)
+	selected_idx2 = cursor_idx
+	UpdateSelected()
+	UpdateCursor()
+end
+
+function SelectJumpCursorLeft()
+	if (cursor_idx == 0) then return end
+
+	if (console.ui.selected.visible == false) then
+		selected_idx1 = cursor_idx
+	end
+
+	if (string.match(utf8.sub(input_buffer, cursor_idx, cursor_idx), "%p") ~= nil) then
+		cursor_idx = math.max(0, cursor_idx - 1)
+	else
+		local p_idx
+		for i = cursor_idx - 1, 0, -1 do
+			if (string.match(utf8.sub(input_buffer, i, i), "%p") ~= nil) then
+				p_idx = i
+				break
+			end
+		end
+		cursor_idx = p_idx or 0
+	end
+	selected_idx2 = cursor_idx
+	UpdateSelected()
+	UpdateCursor()
+end
+
+function SelectJumpCursorRight()
+	if (cursor_idx == utf8.len(input_buffer)) then return end
+
+	if (console.ui.selected.visible == false) then
+		selected_idx1 = cursor_idx
+	end
+
+	if (string.match(utf8.sub(input_buffer, cursor_idx + 1, cursor_idx + 1), "%p") ~= nil) then
+		cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
+	else
+		local p_idx
+		for i = cursor_idx, utf8.len(input_buffer) do
+			if (string.match(utf8.sub(input_buffer, i + 1, i + 1), "%p") ~= nil) then
+				p_idx = i
+				break
+			end
+		end
+		cursor_idx = p_idx or utf8.len(input_buffer)
+	end
 	selected_idx2 = cursor_idx
 	UpdateSelected()
 	UpdateCursor()
