@@ -169,6 +169,14 @@ function MoveCursorEnd()
 	UpdateCursor()
 end
 
+function JumpCursorLeft()
+
+end
+
+function JumpCursorRight()
+
+end
+
  -- selected
 function UpdateSelected()
 	if (selected_idx1 == -1 or selected_idx1 == selected_idx2) then
@@ -206,6 +214,7 @@ function SelectCursorRight()
 	if (console.ui.selected.visible == false) then
 		selected_idx1 = cursor_idx
 	end
+
 	cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
 	selected_idx2 = cursor_idx
 	UpdateCursor()
@@ -215,10 +224,11 @@ end
 function SelectCursorLeft()
 	if (cursor_idx == 0) then return end
 
-	cursor_idx = math.max(0, cursor_idx - 1)
 	if (console.ui.selected.visible == false) then
-		selected_idx1 = cursor_idx + 1
+		selected_idx1 = cursor_idx
 	end
+
+	cursor_idx = math.max(0, cursor_idx - 1)
 	selected_idx2 = cursor_idx
 	UpdateCursor()
 	UpdateSelected()
@@ -234,6 +244,40 @@ function RemoveSelected()
 	input_buffer =  left .. right
 	MoveCursorToPosition(left_idx)
 	DeselectAll()
+end
+
+function SelectJumpCursorLeft()
+
+end
+
+function SelectJumpCursorRight()
+
+end
+
+function SelectHome()
+	if (cursor_idx == 0) then return end
+
+	if (console.ui.selected.visible == false) then
+		selected_idx1 = cursor_idx
+	end
+
+	cursor_idx = 0
+	selected_idx2 = cursor_idx
+	UpdateSelected()
+	UpdateCursor()
+end
+
+function SelectEnd()
+	if (cursor_idx == utf8.len(input_buffer)) then return end
+
+	if (console.ui.selected.visible == false) then
+		selected_idx1 = cursor_idx
+	end
+
+	cursor_idx = utf8.len(input_buffer)
+	selected_idx2 = cursor_idx
+	UpdateSelected()
+	UpdateCursor()
 end
 
 -- insert/delete
@@ -511,13 +555,23 @@ end
 keybinds = {
 	["kpenter"] = ExecInputBuffer,
 
-	["left"] = MoveCursorLeft,
-	["right"] = MoveCursorRight,
 	["up"] = MoveHistoryUp,
 	["down"] = MoveHistoryDown,
 
+	["left"] = MoveCursorLeft,
+	["right"] = MoveCursorRight,
+
 	["+left"] = SelectCursorLeft,
 	["+right"] = SelectCursorRight,
+
+	["^left"] = JumpCursorLeft,
+	["^right"] = JumpCursorRight,
+
+	["^+left"] = SelectJumpCursorLeft,
+	["^+right"] = SelectJumpCursorRight,
+
+	["+home"] = SelectHome,
+	["+end"] = SelectEnd,
 
 	["escape"] = ClearEsc,
 
