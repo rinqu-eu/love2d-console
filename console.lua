@@ -354,12 +354,15 @@ function MoveHistoryUp()
 end
 
 -- output
-function AddToOutput(msg)
-	if (msg == "") then msg = "nil" end
-	if (msg == nil) then msg = "nil" end
+function AddToOutput(...)
+	local arg = {...}
+	local narg = select("#", ...)
 
-	msg = tostring(msg)
-	msg = parse(msg)
+	for i = 1, narg do
+		arg[i] = tostring(arg[i])
+	end
+
+	msg = parse(table.concat(arg, " "))
 	table.insert(output_buffer, msg)
 end
 
