@@ -99,10 +99,11 @@ function utf8.sub(s, i, j)
 	return string.sub(s, offset_i, offset_j)
 end
 
+-- this is some basic utf8.find that works for just the things I need it to
 function utf8.find(s, pattern, index)
-	-- this is some basic utf8.find that works for just the things I need it
-	-- to work, for the love of God if you ever find this, DO NOT USE IT
-	index = index or 1
+	assert(type(s) == "number" or type(s) == "string", string.format("bad argument #1 to 'find' (string expected, got %s)", type(s) ~= "nil" and type(s) or "no value"))
+	assert(type(pattern) == "number" or type(pattern) == "string", string.format("bad argument #2 to 'find' (string expected, got %s)", type(pattern) ~= "nil" and type(pattern) or "no value"))
+	s, pattern, index = tostring(s), tostring(pattern), index or 1
 
 	local function depattern(pattern) local tp = {"%%x", "%%.", "%%[", "%%]"} local td = {"x", ".", "[", "]"} local p = pattern for i, v in pairs(tp) do pattern = string.gsub(pattern, v, td[i]) end return pattern end
 	local s_len = utf8.len(s)
@@ -111,10 +112,12 @@ function utf8.find(s, pattern, index)
 	for i = index, s_len do
 		local s_ = utf8.sub(s, i, i + p_len - 1)
 
-		if (string.find(s_, pattern)) then
-			return i
+		if (string.find(s_, pattern) ~= nil) then
+			return i, i + p_len - 1
 		end
 	end
+
+	return nil
 end
 
 -- cursor
