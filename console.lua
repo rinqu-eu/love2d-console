@@ -25,7 +25,7 @@ output_jump_by = 7
 
 color_info = "429bf4"
 color_warn = "cecb2f"
-color_err= "ea2a2a"
+color_err = "ea2a2a"
 color_com = "00cc00"
 
 is_open = false
@@ -125,6 +125,7 @@ end
 
 function UpdateCursor()
 	local x = 4 + font_w + cursor_idx * font_w
+
 	ResetBlink()
 	ui.cursor.x = x
 end
@@ -135,6 +136,7 @@ function MoveCursorRight()
 		DeselectAll()
 		return
 	end
+
 	cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
 	UpdateCursor()
 end
@@ -145,6 +147,7 @@ function MoveCursorLeft()
 		DeselectAll()
 		return
 	end
+
 	cursor_idx = math.max(0, cursor_idx - 1)
 	UpdateCursor()
 end
@@ -172,11 +175,41 @@ function MoveCursorEnd()
 end
 
 function JumpCursorLeft()
+	if (string.match(utf8.sub(input_buffer, cursor_idx, cursor_idx), "%p") ~= nil) then
+		cursor_idx = math.max(0, cursor_idx - 1)
+	else
+		local p_idx
 
+		for i = cursor_idx - 1, 0, -1 do
+			if (string.match(utf8.sub(input_buffer, i, i), "%p") ~= nil) then
+				p_idx = i
+				break
+			end
+		end
+
+		cursor_idx = p_idx or 0
+	end
+
+	UpdateCursor()
 end
 
 function JumpCursorRight()
+	if (string.match(utf8.sub(input_buffer, cursor_idx + 1, cursor_idx + 1), "%p") ~= nil) then
+		cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
+	else
+		local p_idx
 
+		for i = cursor_idx, utf8.len(input_buffer) do
+			if (string.match(utf8.sub(input_buffer, i + 1, i + 1), "%p") ~= nil) then
+				p_idx = i
+				break
+			end
+		end
+
+		cursor_idx = p_idx or utf8.len(input_buffer)
+	end
+
+	UpdateCursor()
 end
 
  -- selected
@@ -248,38 +281,6 @@ function RemoveSelected()
 	DeselectAll()
 end
 
-function JumpCursorLeft()
-	if (string.match(utf8.sub(input_buffer, cursor_idx, cursor_idx), "%p") ~= nil) then
-		cursor_idx = math.max(0, cursor_idx - 1)
-	else
-		local p_idx
-		for i = cursor_idx - 1, 0, -1 do
-			if (string.match(utf8.sub(input_buffer, i, i), "%p") ~= nil) then
-				p_idx = i
-				break
-			end
-		end
-		cursor_idx = p_idx or 0
-	end
-	UpdateCursor()
-end
-
-function JumpCursorRight()
-	if (string.match(utf8.sub(input_buffer, cursor_idx + 1, cursor_idx + 1), "%p") ~= nil) then
-		cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
-	else
-		local p_idx
-		for i = cursor_idx, utf8.len(input_buffer) do
-			if (string.match(utf8.sub(input_buffer, i + 1, i + 1), "%p") ~= nil) then
-				p_idx = i
-				break
-			end
-		end
-		cursor_idx = p_idx or utf8.len(input_buffer)
-	end
-	UpdateCursor()
-end
-
 function SelectHome()
 	if (cursor_idx == 0) then return end
 
@@ -317,14 +318,17 @@ function SelectJumpCursorLeft()
 		cursor_idx = math.max(0, cursor_idx - 1)
 	else
 		local p_idx
+
 		for i = cursor_idx - 1, 0, -1 do
 			if (string.match(utf8.sub(input_buffer, i, i), "%p") ~= nil) then
 				p_idx = i
 				break
 			end
 		end
+
 		cursor_idx = p_idx or 0
 	end
+
 	selected_idx2 = cursor_idx
 	UpdateSelected()
 	UpdateCursor()
@@ -341,14 +345,17 @@ function SelectJumpCursorRight()
 		cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
 	else
 		local p_idx
+
 		for i = cursor_idx, utf8.len(input_buffer) do
 			if (string.match(utf8.sub(input_buffer, i + 1, i + 1), "%p") ~= nil) then
 				p_idx = i
 				break
 			end
 		end
+
 		cursor_idx = p_idx or utf8.len(input_buffer)
 	end
+
 	selected_idx2 = cursor_idx
 	UpdateSelected()
 	UpdateCursor()
@@ -357,6 +364,7 @@ end
 -- insert/delete
 function InsertChar(char)
 	if (input_buffer == "" and char == "`") then return end
+
 	if (console.ui.selected.visible == true) then
 		RemoveSelected()
 	end
@@ -406,6 +414,7 @@ function Cut()
 		local right_idx = math.max(selected_idx1, selected_idx2)
 		local left = utf8.sub(input_buffer, 1, left_idx)
 		local right = utf8.sub(input_buffer, right_idx + 1, utf8.len(input_buffer))
+
 		love.system.setClipboardText(utf8.sub(input_buffer, left_idx + 1, right_idx))
 		input_buffer = left .. right
 		MoveCursorToPosition(left_idx)
@@ -417,6 +426,7 @@ function Copy()
 	if (console.ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
+
 		love.system.setClipboardText(utf8.sub(input_buffer, left_idx + 1, right_idx))
 	end
 end
@@ -427,13 +437,16 @@ function Paste()
 		local right_idx = math.max(selected_idx1, selected_idx2)
 		local left = utf8.sub(input_buffer, 1, left_idx)
 		local right = utf8.sub(input_buffer, right_idx + 1, utf8.len(input_buffer))
+
 		input_buffer = left .. love.system.getClipboardText() .. right
 		DeselectAll()
 	else
 		local left = utf8.sub(input_buffer, 1, cursor_idx)
 		local right = utf8.sub(input_buffer, cursor_idx + 1, utf8.len(input_buffer))
+
 		input_buffer = left .. love.system.getClipboardText() .. right
 	end
+
 	MoveCursorByOffset(utf8.len(love.system.getClipboardText()))
 end
 
@@ -455,11 +468,13 @@ end
 
 function MoveHistoryDown()
 	history_idx = math.min(history_idx + 1, #history_buffer + 1)
+
 	if (history_idx == #history_buffer + 1) then
 		input_buffer = ""
 	else
 		input_buffer = history_buffer[history_idx]
 	end
+
 	MoveCursorEnd()
 end
 
@@ -549,6 +564,7 @@ function ExecInputBuffer()
 			print("pcall: " .. err)
 		end
 	end
+
 	ClearInputBuffer()
 	DeselectAll()
 end
@@ -585,6 +601,7 @@ function parse_(msg)
 	end
 
 	local value
+
 	while (#queue > 0) do
 		local t = dequeue()
 
@@ -604,6 +621,7 @@ end
 
 function EncodeKey(key)
 	local key_encoded = ""
+
 	key_encoded = key_encoded .. (isCtrlDown() and "^" or "")
 	key_encoded = key_encoded .. (isShiftDown() and "+" or "")
 	key_encoded = key_encoded .. (isAltDown() and "%" or "")
@@ -654,6 +672,7 @@ function parse(text)
 	end
 
 	local usable = {}
+
 	for i = 1, #parsed do
 		table.insert(usable, torgb(parsed[i].color))
 		table.insert(usable, parsed[i].text)
@@ -745,20 +764,25 @@ function MakeUI()
 	ui.arrow = {x = 2, z = ui.background.h - font_h}
 	ui.input = {x = 4 + font_w, z = ui.background.h - font_h}
 	ui.output = {}
+
 	local height_left = ui.background.h - font_h
 	local i = 0
+
 	while (height_left >= (font_h)) do
 		i = i + 1
 		ui.output[i] = {x = 4 + font_w, z = ui.background.h - font_h - i * font_h}
 		height_left = height_left - font_h
 	end
+
 	num_output_buffer_lines = i
 	ui.selected = {x = 4 + font_w, z = ui.background.h - font_h, w = 0, h = font_h, color = selected_color, visible = false}
 	ui.cursor = {x = 4 + font_w, z = ui.background.h - font_h, w = 1, h = font_h, color = cursor_color, visible = true}
+
 	if (cursor_style == "block") then
 		ui.cursor.w = font_w
 		ui.cursor.color[4] = 127
 	end
+
 	table.insert(output_buffer, git_link)
 end
 
@@ -769,14 +793,17 @@ function DrawUI()
 		love.graphics.setColor({255, 255, 255, 255})
 		love.graphics.print(">", ui.arrow.x, ui.arrow.z)
 		love.graphics.print(input_buffer or "", ui.input.x, ui.input.z)
+
 		for i = 1, num_output_buffer_lines do
 			local idx = #output_buffer - i + 1
 			love.graphics.print(output_buffer[idx - output_idx] or "", ui.output[i].x, ui.output[i].z)
 		end
+
 		if (ui.selected.visible == true) then
 			love.graphics.setColor(ui.selected.color)
 			love.graphics.rectangle("fill", ui.selected.x, ui.selected.z, ui.selected.w, ui.selected.h)
 		end
+
 		if (ui.cursor.visible == true) then
 			love.graphics.setColor(ui.cursor.color)
 			love.graphics.rectangle("fill", ui.cursor.x, ui.cursor.z, ui.cursor.w, ui.cursor.h)
@@ -786,6 +813,7 @@ end
 
 function HookPrint()
 	unhooked.print = print
+
 	_G.print = function(...)
 		unhooked.print(...)
 		AddToOutput(...)
@@ -808,6 +836,7 @@ function Hook()
 	unhooked.keypressed = love.keypressed
 	unhooked.keyreleased = love.keyreleased
 	unhooked.textinput = love.textinput
+
 	love.keyboard.setKeyRepeat(true)
 	love.graphics.setFont(font)
 	love.update = function(dt)
@@ -853,6 +882,7 @@ function Show()
 		MakeUI()
 		HookPrint()
 	end
+
 	if (is_open == false) then
 		is_open = true
 		Hook()
