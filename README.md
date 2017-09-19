@@ -2,7 +2,7 @@
 Ingame console for Love2D
 ## Installation
 - Create a console folder and put both **console.lua** and **FiraCode.ttf** in it, i.e:
-   >/
+   >/</br>
 | -- main.lua<br>
 | -- console/<br>
 |&emsp;&emsp;| -- console.lua<br>
