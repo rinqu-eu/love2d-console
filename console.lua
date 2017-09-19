@@ -787,6 +787,7 @@ function MakeUI()
 	end
 
 	table.insert(output_buffer, git_link)
+	table.insert(output_buffer, "Type 'exit' to close")
 end
 
 function DrawUI()
