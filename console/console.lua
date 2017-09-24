@@ -10,9 +10,10 @@ local utf8 = require("utf8")
 git_link = "https://github.com/rinqu-eu/love2d-console"
 
 path = ...
-path = path:sub(1, -9):gsub("%p", "/")
+path_req = path:sub(1, -9)
+path_load = path:sub(1, -9):gsub("%p", "/")
 
-font = love.graphics.newFont(path .."/FiraCode.ttf", 13)
+font = love.graphics.newFont(path_load .. "/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
