@@ -594,7 +594,11 @@ function parse_(msg)
 			msg = utf8.sub(msg, 2)
 		elseif (bra_idx == 1) then
 			local end_idx = utf8.find(msg, "%]")
-			enqueue(utf8.sub(msg, 3, end_idx - 2))
+			if (utf8.sub(msg, 2, 2) == "\"") then
+				enqueue(utf8.sub(msg, 3, end_idx - 2))
+			else
+				enqueue(tonumber(utf8.sub(msg, 2, end_idx - 1)))
+			end
 			msg = utf8.sub(msg, end_idx + 1)
 		else
 			enqueue(utf8.sub(msg, 1, first_idx - 1))
