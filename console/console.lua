@@ -40,7 +40,7 @@ history_buffer = {}
 cursor_idx = 0
 selected_idx1 = -1
 selected_idx2 = -1
-history_idx = #history_buffer
+history_idx = #history_buffer + 1
 output_idx = 0
 
 blink_time = 0
@@ -467,7 +467,7 @@ end
 
 function ClearHistoryBuffer()
 	history_buffer = {}
-	history_idx = #history_buffer
+	history_idx = #history_buffer + 1
 end
 
 function MoveHistoryDown()
@@ -549,7 +549,7 @@ end
 
 function ExecInputBuffer()
 	if (input_buffer == "") then return end
-	if (input_buffer == "qqq") then Quit() end
+	if (input_buffer == "qqq") then Quit() return end
 	if (input_buffer == "git") then Git() return end
 	if (input_buffer == "clear") then Clear() return end
 	if (input_buffer == "exit") then Exit() return end
@@ -829,6 +829,24 @@ function HookPrint()
 	end
 end
 
+function HookClose()
+	unhooked.quit = love.quit
+
+	_G.love.quit = function(...)
+		local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "w+")
+		local low = math.max(1, #history_buffer - 30 + 1)
+
+		for i = low, #history_buffer do
+			f_history:write(history_buffer[i] .. "\n")
+		end
+		f_history:close()
+
+		if (unhooked.quit ~= nil) then
+			unhooked.quit(...)
+		end
+	end
+end
+
 function textinput(key)
 	InsertChar(key)
 end
@@ -890,6 +908,7 @@ function Show()
 		is_first_open = true
 		MakeUI()
 		HookPrint()
+		HookClose()
 	end
 
 	if (is_open == false) then
@@ -903,5 +922,23 @@ function Hide()
 	if (is_open == true) then
 		is_open = false
 		UnHook()
+	end
+end
+
+do
+	local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "r")
+	if (f_history == nil) then
+		f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "w")
+		f_history:close()
+		f_history = nil
+	else
+		line = f_history:read("*line")
+		while (line ~= nil) do
+			table.insert(history_buffer, line)
+			line = f_history:read("*line")
+		end
+		history_idx = #history_buffer + 1
+		f_history:close()
+		f_history = nil
 	end
 end
