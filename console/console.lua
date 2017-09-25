@@ -701,6 +701,28 @@ function _G.info(...)
 	AddToOutput("|cff" .. color_info .. "info:|r", ...)
 end
 
+function Show()
+	if (is_first_open == false) then
+		is_first_open = true
+		MakeUI()
+		HookPrint()
+		HookClose()
+	end
+
+	if (is_open == false) then
+		is_open = true
+		Hook()
+		ResetBlink()
+	end
+end
+
+function Hide()
+	if (is_open == true) then
+		is_open = false
+		UnHook()
+	end
+end
+
 keybinds = {
 	["kpenter"] = ExecInputBuffer,
 
@@ -738,6 +760,8 @@ keybinds = {
 	["^x"] = Cut,
 	["^c"] = Copy,
 	["^v"] = Paste,
+
+	["`"] = Hide
 }
 
 -- hooks and overrides
@@ -792,7 +816,7 @@ function MakeUI()
 	end
 
 	table.insert(output_buffer, git_link)
-	table.insert(output_buffer, "Type 'exit' to close")
+	table.insert(output_buffer, "Press ` or type 'exit' to close")
 end
 
 function DrawUI()
@@ -901,28 +925,6 @@ function UnHook()
 	love.keypressed = unhooked.keypressed
 	love.keyreleased = unhooked.keyreleased
 	love.textinput = unhooked.textinput
-end
-
-function Show()
-	if (is_first_open == false) then
-		is_first_open = true
-		MakeUI()
-		HookPrint()
-		HookClose()
-	end
-
-	if (is_open == false) then
-		is_open = true
-		Hook()
-		ResetBlink()
-	end
-end
-
-function Hide()
-	if (is_open == true) then
-		is_open = false
-		UnHook()
-	end
 end
 
 do
