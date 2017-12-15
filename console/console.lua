@@ -819,6 +819,25 @@ function MakeUI()
 	table.insert(output_buffer, "Press ` or type 'exit' to close")
 end
 
+function love.resize(w, h)
+    ui.background = {x = 0, z = 0, w = love.graphics.getWidth(), h = love.graphics.getHeight() / 3, color = background_color}
+    ui.arrow = {x = 2, z = ui.background.h - font_h}
+    ui.input = {x = 4 + font_w, z = ui.background.h - font_h }
+
+    local height_left = ui.background.h - font_h
+    local i = 0
+
+    while (height_left >= (font_h)) do
+        i = i + 1
+        ui.output[i] = {x = 4 + font_w, z = ui.background.h - font_h - i * font_h}
+        height_left = height_left - font_h
+    end
+
+    num_output_buffer_lines = i
+    ui.selected = {x = 4 + font_w, z = ui.background.h - font_h, w = 0, h = font_h, color = selected_color, visible = false}
+    ui.cursor = {x = 4 + font_w, z = ui.background.h - font_h, w = 1, h = font_h, color = cursor_color, visible = true}
+end
+
 function DrawUI()
 	if (ui ~= nil) then
 		love.graphics.setColor(ui.background.color)
