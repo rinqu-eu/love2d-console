@@ -17,10 +17,10 @@ font = love.graphics.newFont(path_load .. "/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
-background_color = {40, 40, 40, 127}
+background_color = {0.156862745, 0.156862745, 0.156862745, 0.498039216}
 cursor_style = "block" -- "block" or "line"
-cursor_color = {255, 255, 255, 255}
-selected_color = {170, 170, 170, 127}
+cursor_color = {1, 1, 1, 1}
+selected_color = {0.666666667, 0.666666667, 0.666666667, 0.498039216}
 blink_duration = 0.5
 output_jump_by = 7
 
@@ -644,7 +644,7 @@ function parse(text)
 	local push = function(color) table.insert(color_stack, color) end
 	local pop = function() if (#color_stack > 0) then table.remove(color_stack, #color_stack) end end
 	local peek = function() if (#color_stack > 0) then return color_stack[#color_stack] end end
-	local torgb = function(hex) return {tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16), 255} end
+	local torgb = function(hex) return {tonumber(hex:sub(1, 2), 16) / 255, tonumber(hex:sub(3, 4), 16) / 255, tonumber(hex:sub(5, 6), 16) / 255, 1} end
 	local offset = 1
 
 	local c_tag = "|c%x%x%x%x%x%x%x%x"
@@ -812,7 +812,7 @@ function MakeUI()
 
 	if (cursor_style == "block") then
 		ui.cursor.w = font_w
-		ui.cursor.color[4] = 127
+		ui.cursor.color[4] = 0.498039216
 	end
 
 	table.insert(output_buffer, git_link)
@@ -823,7 +823,7 @@ function DrawUI()
 	if (ui ~= nil) then
 		love.graphics.setColor(ui.background.color)
 		love.graphics.rectangle("fill", ui.background.x, ui.background.z, ui.background.w, ui.background.h)
-		love.graphics.setColor({255, 255, 255, 255})
+		love.graphics.setColor({1, 1, 1, 1})
 		love.graphics.print(">", ui.arrow.x, ui.arrow.z)
 		love.graphics.print(input_buffer or "", ui.input.x, ui.input.z)
 
