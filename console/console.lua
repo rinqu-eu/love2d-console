@@ -17,10 +17,10 @@ font = love.graphics.newFont(path_load .. "/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
-background_color = {40 / 255, 40 / 255, 40 / 255, 127 / 255}
+background_color = {0.16, 0.16, 0.16, 0.50}
 cursor_style = "block" -- "block" or "line"
-cursor_color = {255 / 255, 255 / 255, 255 / 255, 255 / 255}
-selected_color = {170 / 255, 170 / 255, 170 / 255, 127 / 255}
+cursor_color = {1.00, 1.00, 1.00, 1.00}
+selected_color = {0.67, 0.67, 0.67, 0.50}
 blink_duration = 0.5
 output_jump_by = 7
 
