@@ -367,8 +367,6 @@ end
 
 -- insert/delete
 function InsertChar(char)
-	if (input_buffer == "" and char == "`") then return end
-
 	if (console.ui.selected.visible == true) then
 		RemoveSelected()
 	end
@@ -759,9 +757,7 @@ keybinds = {
 	["^a"] = SelectAll,
 	["^x"] = Cut,
 	["^c"] = Copy,
-	["^v"] = Paste,
-
-	["`"] = Hide
+	["^v"] = Paste
 }
 
 -- hooks and overrides
@@ -872,6 +868,7 @@ function HookClose()
 end
 
 function textinput(key)
+	if (input_buffer == "" and key == "`") then return Hide() end
 	InsertChar(key)
 end
 
