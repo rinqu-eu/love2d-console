@@ -24,6 +24,8 @@ selected_color = {0.67, 0.67, 0.67, 0.50}
 blink_duration = 0.5
 output_jump_by = 7
 
+close_key = '`'
+
 color_info = "429bf4"
 color_warn = "cecb2f"
 color_err = "ea2a2a"
@@ -699,7 +701,11 @@ function _G.info(...)
 	AddToOutput("|cff" .. color_info .. "info:|r", ...)
 end
 
-function Show()
+function Show(opt_close_key)
+	if opt_close_key then
+		close_key = opt_close_key
+	end
+      
 	if (is_first_open == false) then
 		is_first_open = true
 		MakeUI()
@@ -868,7 +874,7 @@ function HookClose()
 end
 
 function textinput(key)
-	if (input_buffer == "" and key == "`") then return Hide() end
+	if (input_buffer == "" and key == close_key) then return Hide() end
 	InsertChar(key)
 end
 
