@@ -794,6 +794,13 @@ end
 
 function MakeUI()
 	ui = {}
+	resize()
+
+	table.insert(output_buffer, git_link)
+	table.insert(output_buffer, "Press ` or type 'exit' to close")
+end
+
+function resize()
 	ui.background = {x = 0, z = 0, w = love.graphics.getWidth(), h = love.graphics.getHeight() / 3, color = background_color}
 	ui.arrow = {x = 2, z = ui.background.h - font_h}
 	ui.input = {x = 4 + font_w, z = ui.background.h - font_h}
@@ -816,9 +823,10 @@ function MakeUI()
 		ui.cursor.w = font_w
 		ui.cursor.color[4] = 127
 	end
+end
 
-	table.insert(output_buffer, git_link)
-	table.insert(output_buffer, "Press ` or type 'exit' to close")
+function love.resize(w, h)
+	resize()
 end
 
 function DrawUI()
