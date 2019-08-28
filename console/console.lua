@@ -11,18 +11,22 @@ git_link = "https://github.com/rinqu-eu/love2d-console"
 
 path = ...
 path_req = path:sub(1, -9)
-path_load = path:sub(1, -9):gsub("%p", "/")
+path_load = path:sub(1, -9):gsub("%.", "/")
 
 font = love.graphics.newFont(path_load .. "/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
-background_color = {0.156862745, 0.156862745, 0.156862745, 0.498039216}
+
+backgrond_color = {0.16, 0.16, 0.16, 0.50}
 cursor_style = "block" -- "block" or "line"
-cursor_color = {1, 1, 1, 1}
-selected_color = {0.666666667, 0.666666667, 0.666666667, 0.498039216}
+cursor_color = {1.00, 1.00, 1.00, 1.00}
+selected_color = {0.67, 0.67, 0.67, 0.50}
+
 blink_duration = 0.5
 output_jump_by = 7
+
+close_key = '`'
 
 color_info = "429bf4"
 color_warn = "cecb2f"
@@ -367,8 +371,6 @@ end
 
 -- insert/delete
 function InsertChar(char)
-	if (input_buffer == "" and char == "`") then return end
-
 	if (console.ui.selected.visible == true) then
 		RemoveSelected()
 	end
@@ -701,7 +703,11 @@ function _G.info(...)
 	AddToOutput("|cff" .. color_info .. "info:|r", ...)
 end
 
-function Show()
+function Show(opt_close_key)
+	if opt_close_key then
+		close_key = opt_close_key
+	end
+      
 	if (is_first_open == false) then
 		is_first_open = true
 		MakeUI()
@@ -759,9 +765,7 @@ keybinds = {
 	["^a"] = SelectAll,
 	["^x"] = Cut,
 	["^c"] = Copy,
-	["^v"] = Paste,
-
-	["`"] = Hide
+	["^v"] = Paste
 }
 
 -- hooks and overrides
@@ -792,6 +796,13 @@ end
 
 function MakeUI()
 	ui = {}
+	resize()
+
+	table.insert(output_buffer, git_link)
+	table.insert(output_buffer, "Press ` or type 'exit' to close")
+end
+
+function resize()
 	ui.background = {x = 0, z = 0, w = love.graphics.getWidth(), h = love.graphics.getHeight() / 3, color = background_color}
 	ui.arrow = {x = 2, z = ui.background.h - font_h}
 	ui.input = {x = 4 + font_w, z = ui.background.h - font_h}
@@ -814,9 +825,10 @@ function MakeUI()
 		ui.cursor.w = font_w
 		ui.cursor.color[4] = 0.498039216
 	end
+end
 
-	table.insert(output_buffer, git_link)
-	table.insert(output_buffer, "Press ` or type 'exit' to close")
+function love.resize(w, h)
+	resize()
 end
 
 function DrawUI()
@@ -872,6 +884,7 @@ function HookClose()
 end
 
 function textinput(key)
+	if (input_buffer == "" and key == close_key) then return Hide() end
 	InsertChar(key)
 end
 

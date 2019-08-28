@@ -11,8 +11,8 @@ Ingame console for Love2D
 - On top of your main file add:
    >require("console.console")
 
-- In the **love.keypressed** function add:
-   > if (key == "`") then
+- In the **love.textinput** function add:
+   > if (text == "`") then
   console.Show()
 end
 
