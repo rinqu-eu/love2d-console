@@ -18,7 +18,7 @@ font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
 
-backgrond_color = {0.16, 0.16, 0.16, 0.50}
+background_color = {0.16, 0.16, 0.16, 0.50}
 cursor_style = "block" -- "block" or "line"
 cursor_color = {1.00, 1.00, 1.00, 1.00}
 selected_color = {0.67, 0.67, 0.67, 0.50}
