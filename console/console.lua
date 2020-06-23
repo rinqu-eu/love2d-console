@@ -1,3 +1,4 @@
+-- #region setup
 console = {}
 
 setmetatable(console, {__index = _G})
@@ -50,8 +51,9 @@ output_idx = 0
 blink_time = 0
 
 num_output_buffer_lines = 0
+-- #endregion setup
 
--- helpers
+-- #region helpers misc
 function isAltDown()
 	return love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt")
 end
@@ -73,7 +75,9 @@ function clamp(min, value, max)
 		return value
 	end
 end
+-- #endregion helpers
 
+-- #region utf8
 function utf8.sub(s, i, j)
 	assert(type(s) == "number" or type(s) == "string", string.format("bad argument #1 to 'sub' (string expected, got %s)", type(s) ~= "nil" and type(s) or "no value"))
 	assert(type(i) == "number" or type(tonumber(i)) == "number", string.format("bad argument #2 to 'sub' (number expected, got %s)", type(i) ~= "nil" and type(i) or "no value"))
@@ -124,8 +128,9 @@ function utf8.find(s, pattern, index)
 
 	return nil
 end
+-- #endregion utf8
 
--- cursor
+-- #region cursor
 function ResetBlink()
 	blink_time = 0
 	ui.cursor.visible = true
@@ -219,8 +224,9 @@ function JumpCursorRight()
 
 	UpdateCursor()
 end
+-- #endregion cursor
 
- -- selected
+-- #region selected
 function UpdateSelected()
 	if (selected_idx1 == -1 or selected_idx1 == selected_idx2) then
 		ui.selected.visible = false
@@ -368,8 +374,9 @@ function SelectJumpCursorRight()
 	UpdateSelected()
 	UpdateCursor()
 end
+-- #endregion selected
 
--- insert/delete
+-- #region insert/delete
 function InsertChar(char)
 	if (console.ui.selected.visible == true) then
 		RemoveSelected()
@@ -460,8 +467,9 @@ function ClearInputBuffer()
 	input_buffer = ""
 	MoveCursorHome()
 end
+-- #endregion insert/delete
 
--- history
+-- #region history
 function AddToHistory(msg)
 	table.insert(history_buffer, msg)
 	history_idx = #history_buffer + 1
@@ -489,8 +497,9 @@ function MoveHistoryUp()
 	input_buffer = history_buffer[history_idx] or ""
 	MoveCursorEnd()
 end
+-- #endregion history
 
--- output
+-- #region output
 function AddToOutput(...)
 	local arg = {...}
 	local narg = select("#", ...)
@@ -519,8 +528,9 @@ end
 function MoveOutputDown()
 	MoveOutputBy(-output_jump_by)
 end
+-- #endregion output
 
--- special commands
+-- #region special commands
 function Exit()
 	ClearInputBuffer()
 	console.Hide()
@@ -574,6 +584,7 @@ function ExecInputBuffer()
 	ClearInputBuffer()
 	DeselectAll()
 end
+-- #endregion special commands
 
 function parse_(msg)
 	local queue = {}
@@ -769,7 +780,7 @@ keybinds = {
 	["^v"] = Paste
 }
 
--- hooks and overrides
+-- #region hooks and overrides
 function update(dt)
 	blink_time = blink_time + dt
 
@@ -793,14 +804,6 @@ function keypressed(key)
 	if (keybinds[key_encoded] ~= nil) then
 		keybinds[key_encoded]()
 	end
-end
-
-function MakeUI()
-	ui = {}
-	resize(love.graphics.getWidth(), love.graphics.getHeight())
-
-	table.insert(output_buffer, git_link)
-	table.insert(output_buffer, "Press ` or type 'exit' to close")
 end
 
 function resize(w, h)
@@ -827,10 +830,15 @@ function resize(w, h)
 		ui.cursor.color[4] = 0.498039216
 	end
 end
+-- #endregion hooks and overrides
 
--- function love.resize(w, h)
--- 	resize()
--- end
+function MakeUI()
+	ui = {}
+	resize(love.graphics.getWidth(), love.graphics.getHeight())
+
+	table.insert(output_buffer, git_link)
+	table.insert(output_buffer, "Press ` or type 'exit' to close")
+end
 
 function DrawUI()
 	if (ui ~= nil) then
