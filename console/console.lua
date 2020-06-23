@@ -707,7 +707,7 @@ function Show(opt_close_key)
 	if opt_close_key then
 		close_key = opt_close_key
 	end
-      
+
 	if (is_first_open == false) then
 		is_first_open = true
 		MakeUI()
@@ -717,6 +717,7 @@ function Show(opt_close_key)
 
 	if (is_open == false) then
 		is_open = true
+		resize(love.graphics.getWidth(), love.graphics.getHeight())
 		Hook()
 		ResetBlink()
 	end
@@ -796,14 +797,14 @@ end
 
 function MakeUI()
 	ui = {}
-	resize()
+	resize(love.graphics.getWidth(), love.graphics.getHeight())
 
 	table.insert(output_buffer, git_link)
 	table.insert(output_buffer, "Press ` or type 'exit' to close")
 end
 
-function resize()
-	ui.background = {x = 0, z = 0, w = love.graphics.getWidth(), h = love.graphics.getHeight() / 3, color = background_color}
+function resize(w, h)
+	ui.background = {x = 0, z = 0, w = w, h = h / 3, color = background_color}
 	ui.arrow = {x = 2, z = ui.background.h - font_h}
 	ui.input = {x = 4 + font_w, z = ui.background.h - font_h}
 	ui.output = {}
@@ -827,9 +828,9 @@ function resize()
 	end
 end
 
-function love.resize(w, h)
-	resize()
-end
+-- function love.resize(w, h)
+-- 	resize()
+-- end
 
 function DrawUI()
 	if (ui ~= nil) then
@@ -900,6 +901,7 @@ function Hook()
 	unhooked.keypressed = love.keypressed
 	unhooked.keyreleased = love.keyreleased
 	unhooked.textinput = love.textinput
+	unhooked.resize = love.resize
 
 	love.keyboard.setKeyRepeat(true)
 	love.graphics.setFont(font)
@@ -917,6 +919,12 @@ function Hook()
 		end
 		love.graphics.setFont(font)
 		draw()
+	end
+	love.resize = function(w, h)
+		if (unhooked.resize ~= nil) then
+			unhooked.resize(w, h)
+		end
+		resize(w, h)
 	end
 	love.wheelmoved = wheelmoved
 	love.mousepressed = mousepressed
@@ -938,6 +946,7 @@ function UnHook()
 	love.keypressed = unhooked.keypressed
 	love.keyreleased = unhooked.keyreleased
 	love.textinput = unhooked.textinput
+	love.resize = unhooked.resize
 end
 
 do
