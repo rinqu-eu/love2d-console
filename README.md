@@ -1,5 +1,8 @@
 # love2d-console
 Ingame console for Love2D
+
+![alt text](https://i.imgur.com/oSsRtCR.png)
+
 ## Installation
 - Place console folder next to your main.lua:
    >/</br>
