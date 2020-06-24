@@ -981,3 +981,6 @@ do
 		f_history = nil
 	end
 end
+
+Show()
+Hide()
