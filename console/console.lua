@@ -714,6 +714,13 @@ function _G.info(...)
 	AddToOutput("|cff" .. color_info .. "info:|r", ...)
 end
 
+function _G.cprint(color, ...)
+	assert(string.len(color) == 6)
+
+	unhooked.print(...)
+	AddToOutput("|cff" .. color .. "info:|r", ...)
+end
+
 function Show(opt_close_key)
 	if opt_close_key then
 		close_key = opt_close_key
