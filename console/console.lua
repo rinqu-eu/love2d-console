@@ -54,15 +54,15 @@ num_output_buffer_lines = 0
 -- #endregion setup
 
 -- #region helpers misc
-function isAltDown()
+function is_alt_key_down()
 	return love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt")
 end
 
-function isCtrlDown()
+function is_ctrl_key_down()
 	return love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
 end
 
-function isShiftDown()
+function is_shift_key_down()
 	return love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
 end
 
@@ -131,63 +131,63 @@ end
 -- #endregion utf8
 
 -- #region cursor
-function ResetBlink()
+function reset_blink()
 	blink_time = 0
 	ui.cursor.visible = true
 end
 
-function UpdateCursor()
+function update_cursor()
 	local x = 4 + font_w + cursor_idx * font_w
 
-	ResetBlink()
+	reset_blink()
 	ui.cursor.x = x
 end
 
-function MoveCursorRight()
+function move_cursor_right()
 	if (console.ui.selected.visible == true) then
-		MoveCursorToPosition(math.max(selected_idx1, selected_idx2))
-		DeselectAll()
+		move_cursor_to_position(math.max(selected_idx1, selected_idx2))
+		deselect_all()
 		return
 	end
 
 	cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
-	UpdateCursor()
+	update_cursor()
 end
 
-function MoveCursorLeft()
+function move_cursor_left()
 	if (console.ui.selected.visible == true) then
-		MoveCursorToPosition(math.min(selected_idx1, selected_idx2))
-		DeselectAll()
+		move_cursor_to_position(math.min(selected_idx1, selected_idx2))
+		deselect_all()
 		return
 	end
 
 	cursor_idx = math.max(0, cursor_idx - 1)
-	UpdateCursor()
+	update_cursor()
 end
 
-function MoveCursorToPosition(pos)
+function move_cursor_to_position(pos)
 	cursor_idx = clamp(0, pos, utf8.len(input_buffer))
-	UpdateCursor()
+	update_cursor()
 end
 
-function MoveCursorByOffset(offset)
+function move_cursor_by_offset(offset)
 	cursor_idx = clamp(0, cursor_idx + offset, utf8.len(input_buffer))
-	UpdateCursor()
+	update_cursor()
 end
 
-function MoveCursorHome()
+function move_cursor_home()
 	cursor_idx = 0
-	DeselectAll()
-	UpdateCursor()
+	deselect_all()
+	update_cursor()
 end
 
-function MoveCursorEnd()
+function move_cursor_end()
 	cursor_idx = utf8.len(input_buffer)
-	DeselectAll()
-	UpdateCursor()
+	deselect_all()
+	update_cursor()
 end
 
-function JumpCursorLeft()
+function jump_cursor_left()
 	if (string.match(utf8.sub(input_buffer, cursor_idx, cursor_idx), "%p") ~= nil) then
 		cursor_idx = math.max(0, cursor_idx - 1)
 	else
@@ -203,10 +203,10 @@ function JumpCursorLeft()
 		cursor_idx = p_idx or 0
 	end
 
-	UpdateCursor()
+	update_cursor()
 end
 
-function JumpCursorRight()
+function jump_cursor_right()
 	if (string.match(utf8.sub(input_buffer, cursor_idx + 1, cursor_idx + 1), "%p") ~= nil) then
 		cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
 	else
@@ -222,12 +222,12 @@ function JumpCursorRight()
 		cursor_idx = p_idx or utf8.len(input_buffer)
 	end
 
-	UpdateCursor()
+	update_cursor()
 end
 -- #endregion cursor
 
 -- #region selected
-function UpdateSelected()
+function update_selected()
 	if (selected_idx1 == -1 or selected_idx1 == selected_idx2) then
 		ui.selected.visible = false
 	else
@@ -242,22 +242,22 @@ function UpdateSelected()
 	end
 end
 
-function DeselectAll()
+function deselect_all()
 	selected_idx1 = -1
 	selected_idx2 = -1
 
-	UpdateSelected()
+	update_selected()
 end
 
-function SelectAll()
+function select_all()
 	cursor_idx = utf8.len(input_buffer)
 	selected_idx1 = 0
 	selected_idx2 = cursor_idx
-	UpdateCursor()
-	UpdateSelected()
+	update_cursor()
+	update_selected()
 end
 
-function SelectCursorRight()
+function select_cursor_right()
 	if (cursor_idx == utf8.len(input_buffer)) then return end
 
 	if (console.ui.selected.visible == false) then
@@ -266,11 +266,11 @@ function SelectCursorRight()
 
 	cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
 	selected_idx2 = cursor_idx
-	UpdateCursor()
-	UpdateSelected()
+	update_cursor()
+	update_selected()
 end
 
-function SelectCursorLeft()
+function select_cursor_left()
 	if (cursor_idx == 0) then return end
 
 	if (console.ui.selected.visible == false) then
@@ -279,11 +279,11 @@ function SelectCursorLeft()
 
 	cursor_idx = math.max(0, cursor_idx - 1)
 	selected_idx2 = cursor_idx
-	UpdateCursor()
-	UpdateSelected()
+	update_cursor()
+	update_selected()
 end
 
-function RemoveSelected()
+function remove_selected()
 	local left_idx = math.min(selected_idx1, selected_idx2)
 	local right_idx = math.max(selected_idx1, selected_idx2)
 
@@ -291,11 +291,11 @@ function RemoveSelected()
 	local right = utf8.sub(input_buffer, right_idx + 1, utf8.len(input_buffer))
 
 	input_buffer =  left .. right
-	MoveCursorToPosition(left_idx)
-	DeselectAll()
+	move_cursor_to_position(left_idx)
+	deselect_all()
 end
 
-function SelectHome()
+function select_home()
 	if (cursor_idx == 0) then return end
 
 	if (console.ui.selected.visible == false) then
@@ -304,11 +304,11 @@ function SelectHome()
 
 	cursor_idx = 0
 	selected_idx2 = cursor_idx
-	UpdateSelected()
-	UpdateCursor()
+	update_selected()
+	update_cursor()
 end
 
-function SelectEnd()
+function select_end()
 	if (cursor_idx == utf8.len(input_buffer)) then return end
 
 	if (console.ui.selected.visible == false) then
@@ -317,11 +317,11 @@ function SelectEnd()
 
 	cursor_idx = utf8.len(input_buffer)
 	selected_idx2 = cursor_idx
-	UpdateSelected()
-	UpdateCursor()
+	update_selected()
+	update_cursor()
 end
 
-function SelectJumpCursorLeft()
+function select_jump_cursor_left()
 	if (cursor_idx == 0) then return end
 
 	if (console.ui.selected.visible == false) then
@@ -344,11 +344,11 @@ function SelectJumpCursorLeft()
 	end
 
 	selected_idx2 = cursor_idx
-	UpdateSelected()
-	UpdateCursor()
+	update_selected()
+	update_cursor()
 end
 
-function SelectJumpCursorRight()
+function select_jump_cursor_right()
 	if (cursor_idx == utf8.len(input_buffer)) then return end
 
 	if (console.ui.selected.visible == false) then
@@ -371,15 +371,15 @@ function SelectJumpCursorRight()
 	end
 
 	selected_idx2 = cursor_idx
-	UpdateSelected()
-	UpdateCursor()
+	update_selected()
+	update_cursor()
 end
 -- #endregion selected
 
 -- #region insert/delete
-function InsertChar(char)
+function inset_character(char)
 	if (console.ui.selected.visible == true) then
-		RemoveSelected()
+		remove_selected()
 	end
 
 	if (cursor_idx == utf8.len(input_buffer)) then
@@ -391,12 +391,12 @@ function InsertChar(char)
 		input_buffer = left .. char .. right
 	end
 
-	MoveCursorRight()
+	move_cursor_right()
 end
 
-function RemovePrevChar()
+function remove_prev_character()
 	if (console.ui.selected.visible == true) then
-		RemoveSelected()
+		remove_selected()
 	else
 		if (cursor_idx == 0) then return end
 
@@ -404,13 +404,13 @@ function RemovePrevChar()
 		local right = utf8.sub(input_buffer, cursor_idx + 1, utf8.len(input_buffer))
 
 		input_buffer =  left .. right
-		MoveCursorLeft()
+		move_cursor_left()
 	end
 end
 
-function RemoveNextChar()
+function remove_next_character()
 	if (console.ui.selected.visible == true) then
-		RemoveSelected()
+		remove_selected()
 	else
 		if (cursor_idx == utf8.len(input_buffer)) then return end
 
@@ -421,7 +421,7 @@ function RemoveNextChar()
 	end
 end
 
-function Cut()
+function cut()
 	if (console.ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
@@ -430,12 +430,12 @@ function Cut()
 
 		love.system.setClipboardText(utf8.sub(input_buffer, left_idx + 1, right_idx))
 		input_buffer = left .. right
-		MoveCursorToPosition(left_idx)
-		DeselectAll()
+		move_cursor_to_position(left_idx)
+		deselect_all()
 	end
 end
 
-function Copy()
+function copy()
 	if (console.ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
@@ -444,7 +444,7 @@ function Copy()
 	end
 end
 
-function Paste()
+function paste()
 	if (console.ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
@@ -452,7 +452,7 @@ function Paste()
 		local right = utf8.sub(input_buffer, right_idx + 1, utf8.len(input_buffer))
 
 		input_buffer = left .. love.system.getClipboardText() .. right
-		DeselectAll()
+		deselect_all()
 	else
 		local left = utf8.sub(input_buffer, 1, cursor_idx)
 		local right = utf8.sub(input_buffer, cursor_idx + 1, utf8.len(input_buffer))
@@ -460,27 +460,27 @@ function Paste()
 		input_buffer = left .. love.system.getClipboardText() .. right
 	end
 
-	MoveCursorByOffset(utf8.len(love.system.getClipboardText()))
+	move_cursor_by_offset(utf8.len(love.system.getClipboardText()))
 end
 
-function ClearInputBuffer()
+function clear_input_buffer()
 	input_buffer = ""
-	MoveCursorHome()
+	move_cursor_home()
 end
 -- #endregion insert/delete
 
 -- #region history
-function AddToHistory(msg)
+function add_to_history(msg)
 	table.insert(history_buffer, msg)
 	history_idx = #history_buffer + 1
 end
 
-function ClearHistoryBuffer()
+function clear_history_buffer()
 	history_buffer = {}
 	history_idx = #history_buffer + 1
 end
 
-function MoveHistoryDown()
+function move_history_down()
 	history_idx = math.min(history_idx + 1, #history_buffer + 1)
 
 	if (history_idx == #history_buffer + 1) then
@@ -489,18 +489,18 @@ function MoveHistoryDown()
 		input_buffer = history_buffer[history_idx]
 	end
 
-	MoveCursorEnd()
+	move_cursor_end()
 end
 
-function MoveHistoryUp()
+function move_history_up()
 	history_idx = math.max(1, history_idx - 1)
 	input_buffer = history_buffer[history_idx] or ""
-	MoveCursorEnd()
+	move_cursor_end()
 end
 -- #endregion history
 
 -- #region output
-function AddToOutput(...)
+function add_to_output(...)
 	local arg = {...}
 	local narg = select("#", ...)
 
@@ -512,64 +512,64 @@ function AddToOutput(...)
 	table.insert(output_buffer, msg)
 end
 
-function ClearOutputBuffer()
+function clear_output_history()
 	output_buffer = {}
 	output_idx = 0
 end
 
-function MoveOutputBy(n)
+function move_output_by(n)
 	output_idx = clamp(0, output_idx + n, math.max(#output_buffer - num_output_buffer_lines, 0))
 end
 
-function MoveOutputUp()
-	MoveOutputBy(output_jump_by)
+function move_output_up()
+	move_output_by(output_jump_by)
 end
 
-function MoveOutputDown()
-	MoveOutputBy(-output_jump_by)
+function move_output_down()
+	move_output_by(-output_jump_by)
 end
 -- #endregion output
 
 -- #region special commands
-function Exit()
-	ClearInputBuffer()
-	console.Hide()
+function exit()
+	clear_input_buffer()
+	console.hide()
 end
 
-function Clear()
-	ClearHistoryBuffer()
-	ClearOutputBuffer()
-	ClearInputBuffer()
+function clear()
+	clear_history_buffer()
+	clear_output_history()
+	clear_input_buffer()
 end
 
-function Quit()
+function quit()
 	love.event.quit()
 end
 
-function Git()
+function git()
 	print(git_link)
-	ClearInputBuffer()
+	clear_input_buffer()
 end
 
-function ClearEsc()
+function clear_esc()
 	if (console.ui.selected.visible == true) then
-		DeselectAll()
+		deselect_all()
 	else
-		ClearInputBuffer()
+		clear_input_buffer()
 	end
 end
 
-function ExecInputBuffer()
+function exec_input_buffer()
 	if (input_buffer == "") then return end
-	if (input_buffer == "qqq") then Quit() return end
-	if (input_buffer == "git") then Git() return end
-	if (input_buffer == "clear") then Clear() return end
-	if (input_buffer == "exit") then Exit() return end
+	if (input_buffer == "qqq") then quit() return end
+	if (input_buffer == "git") then git() return end
+	if (input_buffer == "clear") then clear() return end
+	if (input_buffer == "exit") then exit() return end
 
 	local func, err = loadstring(input_buffer)
 
-	AddToHistory(input_buffer)
-	AddToOutput("|cff" .. color_com .. "exec: |r" .. input_buffer)
+	add_to_history(input_buffer)
+	add_to_output("|cff" .. color_com .. "exec: |r" .. input_buffer)
 
 	if (err ~= nil) then
 		print(parse_(input_buffer))
@@ -581,8 +581,8 @@ function ExecInputBuffer()
 		end
 	end
 
-	ClearInputBuffer()
-	DeselectAll()
+	clear_input_buffer()
+	deselect_all()
 end
 -- #endregion special commands
 
@@ -640,12 +640,12 @@ function parse_(msg)
 	return tostring(value)
 end
 
-function EncodeKey(key)
+function encode_key(key)
 	local key_encoded = ""
 
-	key_encoded = key_encoded .. (isCtrlDown() and "^" or "")
-	key_encoded = key_encoded .. (isShiftDown() and "+" or "")
-	key_encoded = key_encoded .. (isAltDown() and "%" or "")
+	key_encoded = key_encoded .. (is_ctrl_key_down() and "^" or "")
+	key_encoded = key_encoded .. (is_shift_key_down() and "+" or "")
+	key_encoded = key_encoded .. (is_alt_key_down() and "%" or "")
 
 	return key_encoded .. key
 end
@@ -703,88 +703,88 @@ function parse(text)
 end
 
 function _G.warn(...)
-	AddToOutput("|cff" .. color_warn .. "warning:|r", ...)
+	add_to_output("|cff" .. color_warn .. "warning:|r", ...)
 end
 
 function _G.err(...)
-	AddToOutput("|cff" .. color_err .. "error:|r", ...)
+	add_to_output("|cff" .. color_err .. "error:|r", ...)
 end
 
 function _G.info(...)
-	AddToOutput("|cff" .. color_info .. "info:|r", ...)
+	add_to_output("|cff" .. color_info .. "info:|r", ...)
 end
 
 function _G.cprint(color, ...)
 	assert(string.len(color) == 6)
 
 	unhooked.print(...)
-	AddToOutput("|cff" .. color .. "info:|r", ...)
+	add_to_output("|cff" .. color .. "info:|r", ...)
 end
 
-function Show(opt_close_key)
+function show(opt_close_key)
 	if opt_close_key then
 		close_key = opt_close_key
 	end
 
 	if (is_first_open == false) then
 		is_first_open = true
-		MakeUI()
-		HookPrint()
-		HookClose()
+		make_ui()
+		hook_print()
+		hook_close()
 	end
 
 	if (is_open == false) then
 		is_open = true
 		resize(love.graphics.getWidth(), love.graphics.getHeight())
-		Hook()
-		ResetBlink()
+		hook()
+		reset_blink()
 	end
 end
 
-function Hide()
+function hide()
 	if (is_open == true) then
 		is_open = false
-		UnHook()
+		unhook()
 	end
 end
 
 keybinds = {
-	["kpenter"] = ExecInputBuffer,
+	["kpenter"] = exec_input_buffer,
 
-	["up"] = MoveHistoryUp,
-	["down"] = MoveHistoryDown,
+	["up"] = move_history_up,
+	["down"] = move_history_down,
 
-	["left"] = MoveCursorLeft,
-	["right"] = MoveCursorRight,
+	["left"] = move_cursor_left,
+	["right"] = move_cursor_right,
 
-	["+left"] = SelectCursorLeft,
-	["+right"] = SelectCursorRight,
+	["+left"] = select_cursor_left,
+	["+right"] = select_cursor_right,
 
-	["^left"] = JumpCursorLeft,
-	["^right"] = JumpCursorRight,
+	["^left"] = jump_cursor_left,
+	["^right"] = jump_cursor_right,
 
-	["^+left"] = SelectJumpCursorLeft,
-	["^+right"] = SelectJumpCursorRight,
+	["^+left"] = select_jump_cursor_left,
+	["^+right"] = select_jump_cursor_right,
 
-	["+home"] = SelectHome,
-	["+end"] = SelectEnd,
+	["+home"] = select_home,
+	["+end"] = select_end,
 
-	["escape"] = ClearEsc,
+	["escape"] = clear_esc,
 
-	["home"] = MoveCursorHome,
-	["end"] = MoveCursorEnd,
-	["pageup"] = MoveOutputUp,
-	["pagedown"] = MoveOutputDown,
-	["backspace"] = RemovePrevChar,
-	["delete"] = RemoveNextChar,
-	["return"] = ExecInputBuffer,
+	["home"] = move_cursor_home,
+	["end"] = move_cursor_end,
+	["pageup"] = move_output_up,
+	["pagedown"] = move_output_down,
+	["backspace"] = remove_prev_character,
+	["delete"] = remove_next_character,
+	["return"] = exec_input_buffer,
 
-	["kpenter"] = ExecInputBuffer,
+	["kpenter"] = exec_input_buffer,
 
-	["^a"] = SelectAll,
-	["^x"] = Cut,
-	["^c"] = Copy,
-	["^v"] = Paste
+	["^a"] = select_all,
+	["^x"] = cut,
+	["^c"] = copy,
+	["^v"] = paste
 }
 
 -- #region hooks and overrides
@@ -798,15 +798,15 @@ function update(dt)
 end
 
 function draw()
-	DrawUI()
+	draw_ui()
 end
 
 function wheelmoved(_, dir)
-	MoveOutputBy(dir)
+	move_output_by(dir)
 end
 
 function keypressed(key)
-	local key_encoded = EncodeKey(key)
+	local key_encoded = encode_key(key)
 
 	if (keybinds[key_encoded] ~= nil) then
 		keybinds[key_encoded]()
@@ -839,7 +839,7 @@ function resize(w, h)
 end
 -- #endregion hooks and overrides
 
-function MakeUI()
+function make_ui()
 	ui = {}
 	resize(love.graphics.getWidth(), love.graphics.getHeight())
 
@@ -847,7 +847,7 @@ function MakeUI()
 	table.insert(output_buffer, "Press ` or type 'exit' to close")
 end
 
-function DrawUI()
+function draw_ui()
 	if (ui ~= nil) then
 		love.graphics.setColor(ui.background.color)
 		love.graphics.rectangle("fill", ui.background.x, ui.background.z, ui.background.w, ui.background.h)
@@ -872,16 +872,16 @@ function DrawUI()
 	end
 end
 
-function HookPrint()
+function hook_print()
 	unhooked.print = print
 
 	_G.print = function(...)
 		unhooked.print(...)
-		AddToOutput(...)
+		add_to_output(...)
 	end
 end
 
-function HookClose()
+function hook_close()
 	unhooked.quit = love.quit
 
 	_G.love.quit = function(...)
@@ -900,11 +900,11 @@ function HookClose()
 end
 
 function textinput(key)
-	if (input_buffer == "" and key == close_key) then return Hide() end
-	InsertChar(key)
+	if (input_buffer == "" and key == close_key) then return hide() end
+	inset_character(key)
 end
 
-function Hook()
+function hook()
 	unhooked.key_repeat = love.keyboard.hasKeyRepeat()
 	unhooked.font = love.graphics.getFont()
 	unhooked.color = {love.graphics.getColor()}
@@ -949,7 +949,7 @@ function Hook()
 	love.textinput = textinput
 end
 
-function UnHook()
+function unhook()
 	love.keyboard.setKeyRepeat(unhooked.key_repeat)
 	love.graphics.setFont(unhooked.font)
 	love.graphics.setColor(unhooked.color)
@@ -982,5 +982,5 @@ do
 	end
 end
 
-Show()
-Hide()
+show()
+hide()
