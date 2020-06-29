@@ -13,6 +13,7 @@ path_req = path:sub(1, -9)
 path_load = path:sub(1, -9):gsub("%.", "/")
 
 local utf8 = require(path_req .. ".utf8")
+local math = require(path_req .. ".math")
 
 font = love.graphics.newFont(path_load .. "/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
@@ -66,15 +67,6 @@ function is_shift_key_down()
 	return love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
 end
 
-function clamp(min, value, max)
-	if (value > max) then
-		return max
-	elseif (value < min) then
-		return min
-	else
-		return value
-	end
-end
 -- #endregion helpers
 
 -- #region cursor
@@ -113,12 +105,12 @@ function move_cursor_left()
 end
 
 function move_cursor_to_position(pos)
-	cursor_idx = clamp(0, pos, utf8.len(input_buffer))
+	cursor_idx = math.clamp(0, pos, utf8.len(input_buffer))
 	update_cursor()
 end
 
 function move_cursor_by_offset(offset)
-	cursor_idx = clamp(0, cursor_idx + offset, utf8.len(input_buffer))
+	cursor_idx = math.clamp(0, cursor_idx + offset, utf8.len(input_buffer))
 	update_cursor()
 end
 
@@ -465,7 +457,7 @@ function clear_output_history()
 end
 
 function move_output_by(n)
-	output_idx = clamp(0, output_idx + n, math.max(#output_buffer - num_output_buffer_lines, 0))
+	output_idx = math.clamp(0, output_idx + n, math.max(#output_buffer - num_output_buffer_lines, 0))
 end
 
 function move_output_up()
