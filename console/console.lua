@@ -504,6 +504,8 @@ function AddToOutput(...)
 	local arg = {...}
 	local narg = select("#", ...)
 
+	if (narg == nil) then return end
+
 	for i = 1, narg do
 		arg[i] = tostring(arg[i])
 	end
