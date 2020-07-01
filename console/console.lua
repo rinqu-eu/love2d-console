@@ -30,7 +30,7 @@ selected_color = {0.67, 0.67, 0.67, 0.50}
 blink_duration = 0.5
 output_jump_by = 7
 
-close_key = '`'
+toggle_key = "`"
 
 color_info = "429bf4"
 color_warn = "cecb2f"
@@ -556,31 +556,21 @@ function _G.cprint(color, ...)
 	add_to_output("|cff" .. color .. "info:|r", ...)
 end
 
-function show(opt_close_key)
-	if opt_close_key then
-		close_key = opt_close_key
-	end
+function show()
+	if (is_open == true) then return end
 
-	if (is_first_open == false) then
-		is_first_open = true
-		make_ui()
-		hook_print()
-		hook_close()
-	end
-
-	if (is_open == false) then
-		is_open = true
-		resize(love.graphics.getWidth(), love.graphics.getHeight())
-		hook()
-		reset_blink()
-	end
+	is_open = true
+	resize(love.graphics.getWidth(), love.graphics.getHeight())
+	move_cursor_right()
+	reset_blink()
+	hook()
 end
 
 function hide()
-	if (is_open == true) then
-		is_open = false
-		unhook()
-	end
+	if (is_open == false) then return end
+
+	is_open = false
+	unhook()
 end
 
 keybinds = {
@@ -737,8 +727,19 @@ function hook_close()
 end
 
 function textinput(key)
-	if (input_buffer == "" and key == close_key) then return hide() end
+	if (key == toggle_key) then
+		toggle(key)
+		return
+	end
 	inset_character(key)
+end
+
+function toggle(key)
+	if (key == toggle_key and is_open == false) then
+		show()
+	elseif (key == toggle_key and is_open == true) then
+		hide()
+	end
 end
 
 function hook()
@@ -819,5 +820,6 @@ do
 	end
 end
 
-show()
-hide()
+make_ui()
+hook_print()
+hook_close()
