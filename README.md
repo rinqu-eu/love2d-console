@@ -9,20 +9,19 @@ Ingame console for Love2D
 | -- main.lua<br>
 | -- console/<br>
 |&emsp;&emsp;| -- console.lua<br>
-|&emsp;&emsp;` -- FiraCode.ttf<br>
+|&emsp;&emsp;| -- <other files>.lua<br>
+|&emsp;&emsp;` -- font<br>
 
 - On top of your main file add:
    >require("console.console")
 
 - In the **love.textinput** function add:
-   > if (text == "`") then
-  console.Show()
-end
+   >console.toggle(text)
 
 - Use ` to open console
 
 ## Changes to global enviorment
-Loading this library will: 
+Loading this library will:
 - add _console_ table
 - add _info_, _warn_ and _err_ functions
 - hook _print_ so that it also prints to the console
