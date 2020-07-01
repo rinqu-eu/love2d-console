@@ -16,7 +16,7 @@ Ingame console for Love2D
    >require("console.console")
 
 - In the **love.textinput** function add the following line, **text** should be replaced with whatever is your 1st argument name in **love.textinput**<br>
->console.toggle(text)
+   >console.toggle(text)
    
 - Use ` to open console
 
