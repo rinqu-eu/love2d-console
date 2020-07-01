@@ -4,20 +4,20 @@ Ingame console for Love2D
 ![alt text](https://i.imgur.com/oSsRtCR.png)
 
 ## Installation
-- Place console folder next to your main.lua:
+- Copy **console** folder next to your main.lua:
    >/</br>
 | -- main.lua<br>
 | -- console/<br>
 |&emsp;&emsp;| -- console.lua<br>
-|&emsp;&emsp;| -- <other files>.lua<br>
+|&emsp;&emsp;| -- \<other console files\>.lua<br>
 |&emsp;&emsp;` -- font<br>
 
 - On top of your main file add:
    >require("console.console")
 
-- In the **love.textinput** function add:
-   >console.toggle(text)
-
+- In the **love.textinput** function add the following line, **text** should be replaced with whatever is your 1st argument name in **love.textinput**<br>
+>console.toggle(text)
+   
 - Use ` to open console
 
 ## Features
