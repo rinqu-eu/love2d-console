@@ -15,7 +15,7 @@ path_load = path:sub(1, -9):gsub("%.", "/")
 local utf8 = require(path_req .. ".utf8")
 local math = require(path_req .. ".math")
 
-font = love.graphics.newFont(path_load .. "/FiraCode.ttf", 13)
+font = love.graphics.newFont(path_load .. "/font/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
