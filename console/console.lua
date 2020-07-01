@@ -770,6 +770,7 @@ function resize(w, h)
 	num_output_buffer_lines = i
 	ui.selected = {x = 4 + font_w, z = ui.background.h - font_h, w = 0, h = font_h, color = selected_color, visible = false}
 	ui.cursor = {x = 4 + font_w, z = ui.background.h - font_h, w = 1, h = font_h, color = cursor_color, visible = true}
+	ui.cursor_counter = {x = w - 16 * font_w, z = ui.background.h, w = 5, h = font_h}
 
 	if (cursor_style == "block") then
 		ui.cursor.w = font_w
@@ -789,10 +790,11 @@ end
 function draw_ui()
 	if (ui ~= nil) then
 		love.graphics.setColor(ui.background.color)
-		love.graphics.rectangle("fill", ui.background.x, ui.background.z, ui.background.w, ui.background.h)
+		love.graphics.rectangle("fill", ui.background.x, ui.background.z, ui.background.w, ui.background.h + font_h)
 		love.graphics.setColor({1, 1, 1, 1})
 		love.graphics.print(">", ui.arrow.x, ui.arrow.z)
 		love.graphics.print(input_buffer or "", ui.input.x, ui.input.z)
+		love.graphics.print("C: " .. cursor_idx .. " L: 0", ui.cursor_counter.x, ui.cursor_counter.z)
 
 		for i = 1, num_output_buffer_lines do
 			local idx = #output_buffer - i + 1
