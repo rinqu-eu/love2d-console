@@ -54,6 +54,8 @@ output_idx = 0
 blink_time = 0
 
 num_output_buffer_lines = 0
+
+scroll_output_on_exec = true
 -- #endregion setup
 
 -- #region helpers misc
@@ -506,6 +508,10 @@ function exec_input_buffer()
 	if (input_buffer == "git") then git() return end
 	if (input_buffer == "clear") then clear() return end
 	if (input_buffer == "exit") then exit() return end
+
+	if (scroll_output_on_exec == true) then
+		output_idx = 0
+	end
 
 	local func, err = loadstring(input_buffer)
 
