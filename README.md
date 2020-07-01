@@ -20,14 +20,6 @@ Ingame console for Love2D
 
 - Use ` to open console
 
-## Changes to global enviorment
-Loading this library will:
-- add _console_ table
-- add _info_, _warn_ and _err_ functions
-- hook _print_ so that it also prints to the console
-- override your _love.*_ functions when you open a console (with exception of love.update and love.draw)
-- restore your _love.*_ functions when you close a console
-
 ## Features
 - printing variables
 - utf8 support
