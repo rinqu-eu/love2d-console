@@ -666,11 +666,6 @@ function update_ui(w, h)
 	ui.selected = {x = 4 + font_w, y = ui.background.h - font_h, w = 0, h = font_h, color = selected_color, visible = false}
 	ui.cursor = {x = 4 + font_w, y = ui.background.h - font_h, w = 1, h = font_h, color = cursor_color, visible = true}
 	ui.cursor_counter = {x = w - 16 * font_w, y = ui.background.h, w = 5, h = font_h}
-
-	if (cursor_style == "block") then
-		ui.cursor.w = font_w
-		ui.cursor.color[4] = 0.498039216
-	end
 end
 -- #endregion hooks and overrides
 
