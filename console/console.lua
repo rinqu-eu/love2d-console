@@ -23,13 +23,12 @@ font_h = font:getHeight()
 
 
 background_color = color.to_RGB("#2929297F")
-
 selected_color = color.to_RGB("#ABABAB7F")
 
 cursor_color = color.to_RGB("FFFFFFFFF")
 cursor_style = "block" -- "block" or "line"
+cursor_blink_duration = 0.5
 
-blink_duration = 0.5
 output_jump_by = 7
 
 toggle_key = "`"
@@ -53,11 +52,12 @@ selected_idx2 = -1
 history_idx = #history_buffer + 1
 output_idx = 0
 
-blink_time = 0
-
 num_output_buffer_lines = 0
 
 scroll_output_on_exec = true
+
+-- internals
+local cursor_timer = 0
 -- #endregion setup
 
 -- #region helpers misc
@@ -76,15 +76,15 @@ end
 -- #endregion helpers
 
 -- #region cursor
-function reset_blink()
-	blink_time = 0
+function reset_cursor_blink()
+	cursor_timer = 0
 	ui.cursor.visible = true
 end
 
 function update_cursor()
 	local x = 4 + font_w + cursor_idx * font_w
 
-	reset_blink()
+	reset_cursor_blink()
 	ui.cursor.x = x
 end
 
@@ -570,7 +570,7 @@ function show()
 	is_open = true
 	resize(love.graphics.getWidth(), love.graphics.getHeight())
 	move_cursor_right()
-	reset_blink()
+	reset_cursor_blink()
 	hook()
 end
 
@@ -622,11 +622,11 @@ keybinds = {
 
 -- #region hooks and overrides
 function update(dt)
-	blink_time = blink_time + dt
+	cursor_timer = cursor_timer + dt
 
-	if (blink_time >= blink_duration) then
+	if (cursor_timer >= cursor_blink_duration) then
 		ui.cursor.visible = not ui.cursor.visible
-		blink_time = blink_time - blink_duration
+		cursor_timer = cursor_timer - cursor_blink_duration
 	end
 end
 
