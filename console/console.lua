@@ -682,31 +682,6 @@ end
 -- #endregion ui
 
 -- #region hooks and overrides
-function update(dt)
-	cursor_timer = cursor_timer + dt
-
-	if (cursor_timer >= cursor_blink_duration) then
-		ui.cursor.visible = not ui.cursor.visible
-		cursor_timer = cursor_timer - cursor_blink_duration
-	end
-end
-
-function draw()
-	draw_ui()
-end
-
-function wheelmoved(_, dir)
-	move_output_by(dir)
-end
-
-function keypressed(key)
-	local key_encoded = encode_key(key)
-
-	if (keybinds[key_encoded] ~= nil) then
-		keybinds[key_encoded]()
-	end
-end
-
 function hook_print()
 	unhooked.print = print
 
@@ -734,7 +709,53 @@ function hook_close()
 	end
 end
 
-function textinput(key)
+function console_update(dt)
+	if (unhooked.update ~= nil) then
+		unhooked.update(dt)
+	end
+
+	cursor_timer = cursor_timer + dt
+
+	if (cursor_timer >= cursor_blink_duration) then
+		ui.cursor.visible = not ui.cursor.visible
+		cursor_timer = cursor_timer - cursor_blink_duration
+	end
+end
+
+function console_draw()
+	if (unhooked.draw ~= nil) then
+		love.graphics.setFont(unhooked.font)
+		love.graphics.setColor(unhooked.color)
+		unhooked.draw()
+		love.graphics.setFont(font)
+	end
+
+	draw_ui()
+end
+
+function console_resize(w, h)
+	if (unhooked.resize ~= nil) then
+		unhooked.resize(w, h)
+	end
+
+	update_ui(w, h)
+end
+
+function console_wheelmoved(_, dir)
+	move_output_by(dir)
+end
+
+function console_keypressed(key)
+	local key_encoded = encode_key(key)
+
+	if (keybinds[key_encoded] ~= nil) then
+		keybinds[key_encoded]()
+	end
+end
+
+
+
+function console_textinput(key)
 	if (key == toggle_key) then
 		toggle(key)
 		return
@@ -747,58 +768,34 @@ function hook()
 	unhooked.key_repeat = love.keyboard.hasKeyRepeat()
 	unhooked.font = love.graphics.getFont()
 	unhooked.color = {love.graphics.getColor()}
+
 	unhooked.update = love.update
 	unhooked.draw = love.draw
 	unhooked.wheelmoved = love.wheelmoved
-	unhooked.mousepressed = love.mousepressed
-	unhooked.mousereleased = love.mousereleased
 	unhooked.keypressed = love.keypressed
-	unhooked.keyreleased = love.keyreleased
 	unhooked.textinput = love.textinput
 	unhooked.resize = love.resize
 
 	love.keyboard.setKeyRepeat(true)
 	love.graphics.setFont(font)
-	love.update = function(dt)
-		if (unhooked.update ~= nil) then
-			unhooked.update(dt)
-		end
-		update(dt)
-	end
-	love.draw = function()
-		love.graphics.setFont(unhooked.font)
-		love.graphics.setColor(unhooked.color)
-		if (unhooked.draw ~= nil) then
-			unhooked.draw()
-		end
-		love.graphics.setFont(font)
-		draw()
-	end
-	love.resize = function(w, h)
-		if (unhooked.resize ~= nil) then
-			unhooked.resize(w, h)
-		end
-		update_ui(w, h)
-	end
-	love.wheelmoved = wheelmoved
-	love.mousepressed = mousepressed
-	love.mousereleased = mousereleased
-	love.keypressed = keypressed
-	love.keyreleased = keyreleased
-	love.textinput = textinput
+
+	love.update = console_update
+	love.draw = console_draw
+	love.resize = console_resize
+	love.wheelmoved = console_wheelmoved
+	love.keypressed = console_keypressed
+	love.textinput = console_textinput
 end
 
 function unhook()
 	love.keyboard.setKeyRepeat(unhooked.key_repeat)
 	love.graphics.setFont(unhooked.font)
 	love.graphics.setColor(unhooked.color)
+
 	love.update = unhooked.update
 	love.draw = unhooked.draw
 	love.wheelmoved = unhooked.wheelmoved
-	love.mousepressed = unhooked.mousepressed
-	love.mousereleased = unhooked.mousereleased
 	love.keypressed = unhooked.keypressed
-	love.keyreleased = unhooked.keyreleased
 	love.textinput = unhooked.textinput
 	love.resize = unhooked.resize
 end
