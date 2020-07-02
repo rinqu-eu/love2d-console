@@ -527,7 +527,7 @@ function exec_input_buffer()
 	local func, err = loadstring(input_buffer)
 
 	add_to_history(input_buffer)
-	add_to_output("|cff" .. color_com .. "exec: |r" .. input_buffer)
+	add_to_output("|cff" .. color_com .. ">|r" .. input_buffer)
 
 	if (err ~= nil) then
 		print(repl.parse(input_buffer))
