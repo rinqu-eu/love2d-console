@@ -22,10 +22,12 @@ font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
 
-background_color = {0.16, 0.16, 0.16, 0.50}
+background_color = color.to_RGB("#2929297F")
+
+selected_color = color.to_RGB("#ABABAB7F")
+
+cursor_color = color.to_RGB("FFFFFFFFF")
 cursor_style = "block" -- "block" or "line"
-cursor_color = {1.00, 1.00, 1.00, 1.00}
-selected_color = {0.67, 0.67, 0.67, 0.50}
 
 blink_duration = 0.5
 output_jump_by = 7
