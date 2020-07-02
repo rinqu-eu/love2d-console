@@ -74,6 +74,15 @@ function is_shift_key_down()
 	return love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
 end
 
+function encode_key(key)
+	local key_encoded = ""
+
+	key_encoded = key_encoded .. (is_ctrl_key_down() and "^" or "")
+	key_encoded = key_encoded .. (is_shift_key_down() and "+" or "")
+	key_encoded = key_encoded .. (is_alt_key_down() and "%" or "")
+
+	return key_encoded .. key
+end
 -- #endregion helpers
 
 -- #region cursor
@@ -536,16 +545,7 @@ function exec_input_buffer()
 end
 -- #endregion special commands
 
-function encode_key(key)
-	local key_encoded = ""
-
-	key_encoded = key_encoded .. (is_ctrl_key_down() and "^" or "")
-	key_encoded = key_encoded .. (is_shift_key_down() and "+" or "")
-	key_encoded = key_encoded .. (is_alt_key_down() and "%" or "")
-
-	return key_encoded .. key
-end
-
+-- #region global functions
 function _G.warn(...)
 	add_to_output("|cff" .. color_warn .. "warning:|r", ...)
 end
@@ -564,6 +564,7 @@ function _G.cprint(color, ...)
 	unhooked.print(...)
 	add_to_output("|cff" .. color .. "info:|r", ...)
 end
+-- #endregion global functions
 
 function show()
 	if (is_open == true) then return end
@@ -582,6 +583,7 @@ function hide()
 	unhook()
 end
 
+-- #region keybinds
 keybinds = {
 	["kpenter"] = exec_input_buffer,
 
@@ -620,30 +622,14 @@ keybinds = {
 	["^c"] = copy,
 	["^v"] = paste
 }
+-- #endregion keybinds
 
--- #region hooks and overrides
-function update(dt)
-	cursor_timer = cursor_timer + dt
-
-	if (cursor_timer >= cursor_blink_duration) then
-		ui.cursor.visible = not ui.cursor.visible
-		cursor_timer = cursor_timer - cursor_blink_duration
-	end
-end
-
-function draw()
-	draw_ui()
-end
-
-function wheelmoved(_, dir)
-	move_output_by(dir)
-end
-
-function keypressed(key)
-	local key_encoded = encode_key(key)
-
-	if (keybinds[key_encoded] ~= nil) then
-		keybinds[key_encoded]()
+-- #region ui
+function toggle(key)
+	if (key == toggle_key and is_open == false) then
+		show()
+	elseif (key == toggle_key and is_open == true) then
+		hide()
 	end
 end
 
@@ -667,7 +653,6 @@ function update_ui(w, h)
 	ui.cursor = {x = 4 + font_w, y = ui.background.h - font_h, w = 1, h = font_h, color = cursor_color, visible = true}
 	ui.cursor_counter = {x = w - 16 * font_w, y = ui.background.h, w = 5, h = font_h}
 end
--- #endregion hooks and overrides
 
 function draw_ui()
 	if (ui ~= nil) then
@@ -692,6 +677,33 @@ function draw_ui()
 			love.graphics.setColor(ui.cursor.color)
 			love.graphics.rectangle("fill", ui.cursor.x, ui.cursor.y, ui.cursor.w, ui.cursor.h)
 		end
+	end
+end
+-- #endregion ui
+
+-- #region hooks and overrides
+function update(dt)
+	cursor_timer = cursor_timer + dt
+
+	if (cursor_timer >= cursor_blink_duration) then
+		ui.cursor.visible = not ui.cursor.visible
+		cursor_timer = cursor_timer - cursor_blink_duration
+	end
+end
+
+function draw()
+	draw_ui()
+end
+
+function wheelmoved(_, dir)
+	move_output_by(dir)
+end
+
+function keypressed(key)
+	local key_encoded = encode_key(key)
+
+	if (keybinds[key_encoded] ~= nil) then
+		keybinds[key_encoded]()
 	end
 end
 
@@ -730,13 +742,6 @@ function textinput(key)
 	inset_character(key)
 end
 
-function toggle(key)
-	if (key == toggle_key and is_open == false) then
-		show()
-	elseif (key == toggle_key and is_open == true) then
-		hide()
-	end
-end
 
 function hook()
 	unhooked.key_repeat = love.keyboard.hasKeyRepeat()
@@ -797,6 +802,7 @@ function unhook()
 	love.textinput = unhooked.textinput
 	love.resize = unhooked.resize
 end
+-- #endregion hooks and overrides
 
 do
 	local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "r")
