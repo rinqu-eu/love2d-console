@@ -21,7 +21,6 @@ font = love.graphics.newFont(path_load .. "/font/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
-
 background_color = color.to_RGB("#2929297F")
 selected_color = color.to_RGB("#ABABAB7F")
 
@@ -753,8 +752,6 @@ function console_keypressed(key)
 	end
 end
 
-
-
 function console_textinput(key)
 	if (key == toggle_key) then
 		toggle(key)
@@ -762,7 +759,6 @@ function console_textinput(key)
 	end
 	inset_character(key)
 end
-
 
 function hook()
 	unhooked.key_repeat = love.keyboard.hasKeyRepeat()
