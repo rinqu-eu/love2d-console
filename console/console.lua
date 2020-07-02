@@ -39,7 +39,6 @@ color_err = "ea2a2a"
 color_com = "00cc00"
 
 is_open = false
-is_first_open = false
 unhooked = {}
 
 input_buffer = ""
@@ -647,9 +646,9 @@ function keypressed(key)
 end
 
 function resize(w, h)
-	ui.background = {x = 0, z = 0, w = w, h = h / 3, color = background_color}
-	ui.arrow = {x = 2, z = ui.background.h - font_h}
-	ui.input = {x = 4 + font_w, z = ui.background.h - font_h}
+	ui.background = {x = 0, y = 0, w = w, h = h / 3, color = background_color}
+	ui.arrow = {x = 2, y = ui.background.h - font_h}
+	ui.input = {x = 4 + font_w, y = ui.background.h - font_h}
 	ui.output = {}
 
 	local height_left = ui.background.h - font_h
@@ -657,14 +656,14 @@ function resize(w, h)
 
 	while (height_left >= (font_h)) do
 		i = i + 1
-		ui.output[i] = {x = 4 + font_w, z = ui.background.h - font_h - i * font_h}
+		ui.output[i] = {x = 4 + font_w, y = ui.background.h - font_h - i * font_h}
 		height_left = height_left - font_h
 	end
 
 	num_output_buffer_lines = i
-	ui.selected = {x = 4 + font_w, z = ui.background.h - font_h, w = 0, h = font_h, color = selected_color, visible = false}
-	ui.cursor = {x = 4 + font_w, z = ui.background.h - font_h, w = 1, h = font_h, color = cursor_color, visible = true}
-	ui.cursor_counter = {x = w - 16 * font_w, z = ui.background.h, w = 5, h = font_h}
+	ui.selected = {x = 4 + font_w, y = ui.background.h - font_h, w = 0, h = font_h, color = selected_color, visible = false}
+	ui.cursor = {x = 4 + font_w, y = ui.background.h - font_h, w = 1, h = font_h, color = cursor_color, visible = true}
+	ui.cursor_counter = {x = w - 16 * font_w, y = ui.background.h, w = 5, h = font_h}
 
 	if (cursor_style == "block") then
 		ui.cursor.w = font_w
@@ -684,25 +683,25 @@ end
 function draw_ui()
 	if (ui ~= nil) then
 		love.graphics.setColor(ui.background.color)
-		love.graphics.rectangle("fill", ui.background.x, ui.background.z, ui.background.w, ui.background.h + font_h)
+		love.graphics.rectangle("fill", ui.background.x, ui.background.y, ui.background.w, ui.background.h + font_h)
 		love.graphics.setColor({1, 1, 1, 1})
-		love.graphics.print(">", ui.arrow.x, ui.arrow.z)
-		love.graphics.print(input_buffer or "", ui.input.x, ui.input.z)
-		love.graphics.print("C: " .. cursor_idx .. " L: 0", ui.cursor_counter.x, ui.cursor_counter.z)
+		love.graphics.print(">", ui.arrow.x, ui.arrow.y)
+		love.graphics.print(input_buffer or "", ui.input.x, ui.input.y)
+		love.graphics.print("C: " .. cursor_idx .. " L: 0", ui.cursor_counter.x, ui.cursor_counter.y)
 
 		for i = 1, num_output_buffer_lines do
 			local idx = #output_buffer - i + 1
-			love.graphics.print(output_buffer[idx - output_idx] or "", ui.output[i].x, ui.output[i].z)
+			love.graphics.print(output_buffer[idx - output_idx] or "", ui.output[i].x, ui.output[i].y)
 		end
 
 		if (ui.selected.visible == true) then
 			love.graphics.setColor(ui.selected.color)
-			love.graphics.rectangle("fill", ui.selected.x, ui.selected.z, ui.selected.w, ui.selected.h)
+			love.graphics.rectangle("fill", ui.selected.x, ui.selected.y, ui.selected.w, ui.selected.h)
 		end
 
 		if (ui.cursor.visible == true) then
 			love.graphics.setColor(ui.cursor.color)
-			love.graphics.rectangle("fill", ui.cursor.x, ui.cursor.z, ui.cursor.w, ui.cursor.h)
+			love.graphics.rectangle("fill", ui.cursor.x, ui.cursor.y, ui.cursor.w, ui.cursor.h)
 		end
 	end
 end
