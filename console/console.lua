@@ -57,6 +57,8 @@ scroll_output_on_exec = true
 
 -- internals
 local cursor_timer = 0
+
+local ui = {}
 -- #endregion setup
 
 -- #region helpers misc
@@ -88,7 +90,7 @@ function update_cursor()
 end
 
 function move_cursor_right()
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		move_cursor_to_position(math.max(selected_idx1, selected_idx2))
 		deselect_all()
 		return
@@ -99,7 +101,7 @@ function move_cursor_right()
 end
 
 function move_cursor_left()
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		move_cursor_to_position(math.min(selected_idx1, selected_idx2))
 		deselect_all()
 		return
@@ -204,7 +206,7 @@ end
 function select_cursor_right()
 	if (cursor_idx == utf8.len(input_buffer)) then return end
 
-	if (console.ui.selected.visible == false) then
+	if (ui.selected.visible == false) then
 		selected_idx1 = cursor_idx
 	end
 
@@ -217,7 +219,7 @@ end
 function select_cursor_left()
 	if (cursor_idx == 0) then return end
 
-	if (console.ui.selected.visible == false) then
+	if (ui.selected.visible == false) then
 		selected_idx1 = cursor_idx
 	end
 
@@ -242,7 +244,7 @@ end
 function select_home()
 	if (cursor_idx == 0) then return end
 
-	if (console.ui.selected.visible == false) then
+	if (ui.selected.visible == false) then
 		selected_idx1 = cursor_idx
 	end
 
@@ -255,7 +257,7 @@ end
 function select_end()
 	if (cursor_idx == utf8.len(input_buffer)) then return end
 
-	if (console.ui.selected.visible == false) then
+	if (ui.selected.visible == false) then
 		selected_idx1 = cursor_idx
 	end
 
@@ -268,7 +270,7 @@ end
 function select_jump_cursor_left()
 	if (cursor_idx == 0) then return end
 
-	if (console.ui.selected.visible == false) then
+	if (ui.selected.visible == false) then
 		selected_idx1 = cursor_idx
 	end
 
@@ -295,7 +297,7 @@ end
 function select_jump_cursor_right()
 	if (cursor_idx == utf8.len(input_buffer)) then return end
 
-	if (console.ui.selected.visible == false) then
+	if (ui.selected.visible == false) then
 		selected_idx1 = cursor_idx
 	end
 
@@ -322,7 +324,7 @@ end
 
 -- #region insert/delete
 function inset_character(char)
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		remove_selected()
 	end
 
@@ -339,7 +341,7 @@ function inset_character(char)
 end
 
 function remove_prev_character()
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		remove_selected()
 	else
 		if (cursor_idx == 0) then return end
@@ -353,7 +355,7 @@ function remove_prev_character()
 end
 
 function remove_next_character()
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		remove_selected()
 	else
 		if (cursor_idx == utf8.len(input_buffer)) then return end
@@ -366,7 +368,7 @@ function remove_next_character()
 end
 
 function cut()
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
 		local left = utf8.sub(input_buffer, 1, left_idx)
@@ -380,7 +382,7 @@ function cut()
 end
 
 function copy()
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
 
@@ -389,7 +391,7 @@ function copy()
 end
 
 function paste()
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		local left_idx = math.min(selected_idx1, selected_idx2)
 		local right_idx = math.max(selected_idx1, selected_idx2)
 		local left = utf8.sub(input_buffer, 1, left_idx)
@@ -477,7 +479,7 @@ end
 -- #region special commands
 function exit()
 	clear_input_buffer()
-	console.hide()
+	hide()
 end
 
 function clear()
@@ -496,7 +498,7 @@ function git()
 end
 
 function clear_esc()
-	if (console.ui.selected.visible == true) then
+	if (ui.selected.visible == true) then
 		deselect_all()
 	else
 		clear_input_buffer()
@@ -567,7 +569,7 @@ function show()
 	if (is_open == true) then return end
 
 	is_open = true
-	resize(love.graphics.getWidth(), love.graphics.getHeight())
+	update_ui(love.graphics.getWidth(), love.graphics.getHeight())
 	move_cursor_right()
 	reset_cursor_blink()
 	hook()
@@ -645,7 +647,7 @@ function keypressed(key)
 	end
 end
 
-function resize(w, h)
+function update_ui(w, h)
 	ui.background = {x = 0, y = 0, w = w, h = h / 3, color = background_color}
 	ui.arrow = {x = 2, y = ui.background.h - font_h}
 	ui.input = {x = 4 + font_w, y = ui.background.h - font_h}
@@ -671,14 +673,6 @@ function resize(w, h)
 	end
 end
 -- #endregion hooks and overrides
-
-function make_ui()
-	ui = {}
-	resize(love.graphics.getWidth(), love.graphics.getHeight())
-
-	table.insert(output_buffer, git_link)
-	table.insert(output_buffer, "Press ` or type 'exit' to close")
-end
 
 function draw_ui()
 	if (ui ~= nil) then
@@ -784,7 +778,7 @@ function hook()
 		if (unhooked.resize ~= nil) then
 			unhooked.resize(w, h)
 		end
-		resize(w, h)
+		update_ui(w, h)
 	end
 	love.wheelmoved = wheelmoved
 	love.mousepressed = mousepressed
@@ -827,6 +821,7 @@ do
 	end
 end
 
-make_ui()
+table.insert(output_buffer, git_link)
+table.insert(output_buffer, "Press ` or type 'exit' to close")
 hook_print()
 hook_close()
