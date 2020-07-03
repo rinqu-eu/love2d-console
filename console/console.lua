@@ -61,6 +61,10 @@ local ui = {}
 -- #endregion setup
 
 -- #region helpers misc
+function dbg(...)
+	unhooked.print(...)
+end
+
 function is_alt_key_down()
 	return love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt")
 end
