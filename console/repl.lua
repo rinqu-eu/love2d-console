@@ -1,7 +1,6 @@
 local utf8 = require(console.path_req .. ".utf8")
 local repl = {}
 
-
 function repl.parse(msg)
 	local queue = {}
 	local enqueue = function(v)	table.insert(queue, v) end
