@@ -1,5 +1,5 @@
 -- #region setup
-console = {}
+local console = {}
 
 setmetatable(console, {__index = _G})
 setfenv(1, console)
@@ -53,6 +53,7 @@ output_idx = 0
 num_output_buffer_lines = 0
 
 scroll_output_on_exec = true
+expose_output_functions = false
 
 -- internals
 local cursor_timer = 0
@@ -549,23 +550,25 @@ end
 -- #endregion special commands
 
 -- #region global functions
-function _G.warn(...)
-	add_to_output("|cff" .. color_warn .. "warning:|r", ...)
-end
+if (expose_output_functions == true) then
+	function _G.warn(...)
+		add_to_output("|cff" .. color_warn .. "warning:|r", ...)
+	end
 
-function _G.err(...)
-	add_to_output("|cff" .. color_err .. "error:|r", ...)
-end
+	function _G.err(...)
+		add_to_output("|cff" .. color_err .. "error:|r", ...)
+	end
 
-function _G.info(...)
-	add_to_output("|cff" .. color_info .. "info:|r", ...)
-end
+	function _G.info(...)
+		add_to_output("|cff" .. color_info .. "info:|r", ...)
+	end
 
-function _G.cprint(color, ...)
-	assert(string.len(color) == 6)
+	function _G.cprint(color, ...)
+		assert(string.len(color) == 6)
 
-	unhooked.print(...)
-	add_to_output("|cff" .. color .. "info:|r", ...)
+		unhooked.print(...)
+		add_to_output("|cff" .. color .. "info:|r", ...)
+	end
 end
 -- #endregion global functions
 
@@ -830,3 +833,4 @@ table.insert(output_buffer, git_link)
 table.insert(output_buffer, "Press ` or type 'exit' to close")
 hook_print()
 hook_close()
+_G.console_toggle = console.toggle

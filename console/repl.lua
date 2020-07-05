@@ -1,4 +1,6 @@
-local utf8 = require(console.path_req .. ".utf8")
+local path = ...
+local path_req = path:sub(1, -6)
+local utf8 = require(path_req .. ".utf8")
 local repl = {}
 
 function repl.parse(msg)
