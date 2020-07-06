@@ -23,7 +23,7 @@ function color.to_RGB(hex_string)
 	return {r, g, b, a}
 end
 
-local function new_stack()
+local function stack()
 	local push = function(self, color) table.insert(self, color) end
 	local pop = function (self) if (#self > 0) then table.remove(self, #self) end end
 	local peek = function (self) if (#self > 0) then return self[#self] end end
@@ -50,7 +50,7 @@ function color.parse(raw_message)
 	dbg("parser: started parsing")
 	dbg("parser: parsing raw_message: _" .. raw_message .. "_")
 	local parsed_message = {}
-	local color_stack = new_stack()
+	local color_stack = stack()
 	local offset_into_raw_message = 1
 	local raw_message_length = utf8.len(raw_message)
 	dbg("parser: raw message lenght: _" .. raw_message_length .. "_")
