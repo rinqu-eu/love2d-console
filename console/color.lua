@@ -32,8 +32,8 @@ end
 -- functionality of love.graphics.print to handle color printing for me
 
 -- raw_message		-> standard string passed to the parser
--- parsed_message	-> table containing chunks
--- chunk			-> 2 entries in the table that need to be one after the other
+-- parsed_message	-> table containing fragments
+-- fragment			-> 2 entries in the table that need to be one after the other
 --					   1st entry is a table containing a rgb color values between 0-1
 --					   2nd entry is the message text
 
@@ -88,5 +88,54 @@ function color.parse(text)
 
 	return usable
 end
+
+local function print_parsed_message(parsed_message)
+	assert(#parsed_message % 2 == 0, "number of elements in the parsed message has to be even")
+	local fragment_count = #parsed_message / 2
+
+	for i = 1, fragment_count do
+		local offset = i * 2 - 1
+		local fragment_color = parsed_message[offset]
+		local fragment_message = parsed_message[offset+1]
+
+		fragment_color[1] = string.format("r: %#.2f", fragment_color[1])
+		fragment_color[2] = string.format("g: %#.2f", fragment_color[2])
+		fragment_color[3] = string.format("b: %#.2f", fragment_color[3])
+		fragment_color[4] = string.format("a: %#.2f", fragment_color[4])
+
+		fragment_color = "color: " .. table.concat(fragment_color, " ") .. "\t"
+		fragment_message = "text: _" .. fragment_message .. "_"
+
+		print(fragment_color, fragment_message)
+	end
+
+end
+
+local function compare_parsed_messages(description, parsed_message_1, parsed_message_2)
+	print(description)
+	assert(#parsed_message_1 == #parsed_message_2)
+	for i = 1, #parsed_message_1 do
+		if (type(parsed_message_1[i]) == "table") then
+			assert(parsed_message_1[i][1] == parsed_message_2[i][1], description .. ": r doesn't match")
+			assert(parsed_message_1[i][2] == parsed_message_2[i][2], description .. ": g doesn't match")
+			assert(parsed_message_1[i][3] == parsed_message_2[i][3], description .. ": b doesn't match")
+			assert(parsed_message_1[i][4] == parsed_message_2[i][4], description .. ": a doesn't match")
+		else
+			assert(parsed_message_1[i] == parsed_message_2[i], description .. ": text doesn't match")
+		end
+	end
+end
+
+local function run_tests()
+	compare_parsed_messages("empty raw message", color.parse(""), {{1, 1, 1, 1}, ""})
+	compare_parsed_messages("raw message with no color tag", color.parse("test string"), {{1, 1, 1, 1}, "test string"})
+	compare_parsed_messages("raw message with no color close tag", color.parse("|cffff0000test string"), {{1, 0, 0, 1}, "test string"})
+	compare_parsed_messages("raw message with no color open tag", color.parse("test string|r"), {{1, 1, 1, 1}, "test string"})
+	compare_parsed_messages("raw message with 2 color open tag", color.parse("|cffff0000test   |cff00ff00string"), {{1, 0, 0, 1}, "test   ", {0, 1, 0, 1}, "string"})
+	compare_parsed_messages("raw message with 2 color open tag, 1 close tag", color.parse("|cffff0000test   |cff00ff00string|r   t"), {{1, 0, 0, 1}, "test   ", {0, 1, 0, 1}, "string", {1, 0, 0, 1}, "   t"})
+	print("color.parse -> all test passed")
+end
+
+-- run_tests()
 
 return color
