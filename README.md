@@ -1,16 +1,33 @@
 # love2d-console
-Ingame console for Love2D
+A console for any Love2D project
 
-![alt text](https://i.imgur.com/oSsRtCR.png)
+![alt text](\screenshots\main.png)
+
+## Features (subject to change)
+- basic REPL
+- basic utf8 support
+- basic text editor functionality
+   - copy/paste/cut/select all (ctrl + respective keys)
+   - selecting text (shift + left/right arrow)
+   - jump to begining/end of a word (ctrl + left/right arrow)
+   - jump to home/end (Home/End)
+- history of executed commands (up/down arrows) (persistant between runs)
+- color printing (|cffRRGGBBTEXT|r syntax or use cprint("rrggbb", text))
+
+## Special commands
+- **exit** closes console
+- **clear** clears output and history
+- **qqq** closes Love2D
+- **git** prints link to this repo
 
 ## Installation
 - Copy **console** folder next to your main.lua:
-   >/</br>
-| -- main.lua<br>
-| -- console/<br>
-|&emsp;&emsp;| -- console.lua<br>
-|&emsp;&emsp;| -- \<other console files\>.lua<br>
-|&emsp;&emsp;` -- font<br>
+   >/
+| -- main.lua
+| -- console
+|&emsp;&emsp;| -- console.lua
+|&emsp;&emsp;| -- \<other console files\>.lua
+|&emsp;&emsp;` -- font
 
 - On top of your main file add:
    >local console_toggle = require("console.console")
@@ -19,18 +36,3 @@ Ingame console for Love2D
    >console_toggle(text)
 
 - Use ` to open console
-
-## Features
-- printing variables
-- utf8 support
-- selecting text
-- copy, paste, cut
-- colored text (with |cffRRGGBBtext|r syntax)
-- history of executed commands (up / down arrows)
-![alt text](https://i.imgur.com/IkrFHCe.png)
-
-## Special commands
-- **exit** closes console
-- **git** prints link to this repo
-- **clear** clears output and history
-- **qqq** closes Love2D
