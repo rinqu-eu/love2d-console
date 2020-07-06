@@ -833,4 +833,5 @@ table.insert(output_buffer, git_link)
 table.insert(output_buffer, "Press ` or type 'exit' to close")
 hook_print()
 hook_close()
-_G.console_toggle = console.toggle
+
+return console.toggle

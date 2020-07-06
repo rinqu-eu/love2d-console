@@ -13,7 +13,7 @@ Ingame console for Love2D
 |&emsp;&emsp;` -- font<br>
 
 - On top of your main file add:
-   >require("console.console")
+   >local console_toggle = require("console.console")
 
 - In the **love.textinput** function add the following line, **text** should be replaced with whatever is your 1st argument name in **love.textinput**<br>
    >console_toggle(text)
