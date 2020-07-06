@@ -1,7 +1,17 @@
 local path = ...
 local path_req = path:sub(1, -7)
+
 local utf8 = require(path_req .. ".utf8")
+
 local color = {}
+
+local function stack()
+	local push = function(self, color) table.insert(self, color) end
+	local pop = function (self) if (#self > 0) then table.remove(self, #self) end end
+	local peek = function (self) if (#self > 0) then return self[#self] end end
+
+	return {push = push, pop = pop, peek = peek}
+end
 
 function color.to_RGB(hex_string)
 	local len = hex_string:len()
@@ -19,21 +29,12 @@ function color.to_RGB(hex_string)
 	return {r, g, b, a}
 end
 
-local function stack()
-	local push = function(self, color) table.insert(self, color) end
-	local pop = function (self) if (#self > 0) then table.remove(self, #self) end end
-	local peek = function (self) if (#self > 0) then return self[#self] end end
-
-	return {push = push, pop = pop, peek = peek}
-end
-
--- NOTE (rinqu): the reason why parsed_message looks like it does is because I'm using functionality of love.graphics.print to handle color printing for me
-
 local color_tag_open = "|c%x%x%x%x%x%x%x%x"
 local color_tag_open_len = 10
 local color_tag_close = "|r"
 local color_tag_close_len = 2
 
+-- NOTE (rinqu): the reason why parsed_message looks like it does is because I'm using the functionality of love.graphics.print to handle color printing for me
 function color.parse(raw_message)
 	local parsed_message = {}
 	local color_stack = stack()
