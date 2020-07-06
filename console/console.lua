@@ -24,7 +24,8 @@ font_h = font:getHeight()
 background_color = color.to_RGB("#2929297F")
 selected_color = color.to_RGB("#ABABAB7F")
 
-cursor_color = color.to_RGB("FFFFFFFFF")
+cursor_block_color = color.to_RGB("FFFFFFF7F")
+cursor_line_color = color.to_RGB("FFFFFFFFF")
 cursor_style = "block" -- "block" or "line"
 cursor_blink_duration = 0.5
 
@@ -663,8 +664,15 @@ function update_ui(w, h)
 	num_output_buffer_lines = i
 
 	ui.selected = {x = left_pad + font_w, y = bottom_line_offset, w = 0, h = font_h, color = selected_color, visible = false}
-	ui.cursor = {x = left_pad + font_w, y = bottom_line_offset, w = cursor_style == "block" and font_w or 1, h = font_h, color = cursor_color, visible = true}
 	ui.cursor_counter = {x = w - 16 * font_w, y = ui.background.h - 4}
+
+	if (cursor_style == "block") then
+		ui.cursor = {x = left_pad + font_w, y = bottom_line_offset, w = font_w, h = font_h, color = cursor_block_color, visible = true}
+	elseif (cursor_style == "line") then
+		ui.cursor = {x = left_pad + font_w, y = bottom_line_offset, w = 1, h = font_h, color = cursor_line_color, visible = true}
+	else
+		assert(false, 'suported cursor styles: "block" or "line"')
+	end
 end
 
 function draw_ui()
