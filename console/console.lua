@@ -837,9 +837,9 @@ do
 	end
 end
 
-table.insert(output_buffer, git_link)
-table.insert(output_buffer, "Press ` or type 'exit' to close")
 hook_print()
 hook_close()
+add_to_output(git_link)
+add_to_output("Press ` or type 'exit' to close")
 
 return console.toggle
