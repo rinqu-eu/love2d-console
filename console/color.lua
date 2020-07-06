@@ -3,8 +3,12 @@ local path_req = path:sub(1, -7)
 local utf8 = require(path_req .. ".utf8")
 local color = {}
 
+local print = _G.print
+local DEBUG = false
+local dbg = function(...) if (DEBUG == true) then print(...) end end
+
 function color.to_RGB(hex_string)
-	local len  = hex_string:len()
+	local len = hex_string:len()
 	assert(len == 7 or len == 9, "hex string expected, #rrggbb or #rrggbbaa")
 
 	local r = tonumber(hex_string:sub(2, 3), 16) / 255
@@ -43,45 +47,66 @@ local color_tag_close = "|r"
 local color_tag_close_len = 2
 
 function color.parse(raw_message)
+	dbg("parser: started parsing")
+	dbg("parser: parsing raw_message: _" .. raw_message .. "_")
 	local parsed_message = {}
 	local color_stack = new_stack()
 	local offset_into_raw_message = 1
 	local raw_message_length = utf8.len(raw_message)
+	dbg("parser: raw message lenght: _" .. raw_message_length .. "_")
 
 	while (offset_into_raw_message <= raw_message_length) do
+		dbg("parser: offset into raw message: _" .. offset_into_raw_message .. "_")
 		local remaining_raw_message = utf8.sub(raw_message, offset_into_raw_message)
+		dbg("parser: remaining raw message: _" .. remaining_raw_message .. "_")
 		local color_tag_open_idx = utf8.find(remaining_raw_message, color_tag_open)
+		dbg("parser: color tag open idx: _" .. (color_tag_open_idx or "nil") .. "_")
 		local color_tag_close_idx = utf8.find(remaining_raw_message, color_tag_close)
+		dbg("parser: color tag close idx: _" .. (color_tag_close_idx or "nil") .. "_")
 
 		-- we are at an open tag, extract the color
 		if (color_tag_open_idx == 1) then
+			dbg("parser: at color tag open idx")
 			local color = utf8.sub(remaining_raw_message, color_tag_open_idx + 2, color_tag_open_idx + 9)
 
 			color_stack:push("#" .. color)
+			dbg("parser: pushing color: _#" .. color .. "_")
 			offset_into_raw_message = offset_into_raw_message + color_tag_open_len
-		-- we are at a close tag
+			dbg("parser: new offset into raw message: _" .. offset_into_raw_message .. "_")
+			-- we are at a close tag
 		elseif (color_tag_close_idx == 1) then
+			dbg("parser: at color tag close idx")
 			color_stack:pop()
+			dbg("parser: pop color")
 			offset_into_raw_message = offset_into_raw_message + color_tag_close_len
+			dbg("parser: new offset into raw message: _" .. offset_into_raw_message .. "_")
 		-- we have a normal string in in front of us
 		-- find out how long it is and push it as a fragment together with its color
 		else
+			dbg("parser: at text idx")
 			local next_color_tag_idx = (color_tag_open_idx or color_tag_close_idx) and math.min(color_tag_open_idx or math.huge, color_tag_close_idx or math.huge) or 0
+			dbg("parser: next color tag idx: _" .. next_color_tag_idx .. "_, parsing till then")
 			local color_ = color.to_RGB(color_stack:peek() or "#ffffffff")
 			local text = utf8.sub(remaining_raw_message, 1, next_color_tag_idx - 1) or ""
 
+			dbg("parser: adding fragment color: _" .. color_[1] .. " " .. color_[2] .. " " .. color_[3] .. " " .. color_[4] .. "_")
 			table.insert(parsed_message, color_)
+			dbg("parser: adding fragment text: _" .. text .. "_")
 			table.insert(parsed_message, text)
 
 			offset_into_raw_message = offset_into_raw_message + utf8.len(text)
+			dbg("parser: new offset into raw message: _" .. offset_into_raw_message .. "_")
 		end
+		dbg("\n")
 	end
 
+	dbg("parser: done parsing")
 	if (#parsed_message == 0) then
+		dbg("parser: raw_message was empty, adding dummy fragment")
 		table.insert(parsed_message, color.to_RGB("#ffffffff"))
 		table.insert(parsed_message, "")
 	end
-
+	dbg("\n\n")
 	return parsed_message
 end
 
@@ -135,6 +160,6 @@ local function run_tests()
 end
 
 
-run_tests()
+-- run_tests()
 
 return color
