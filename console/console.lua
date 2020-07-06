@@ -568,7 +568,7 @@ if (expose_output_functions == true) then
 		assert(string.len(color) == 6)
 
 		unhooked.print(...)
-		add_to_output("|cff" .. color .. "info:|r", ...)
+		add_to_output("|cff" .. color .. ... .. "|r")
 	end
 end
 -- #endregion global functions
