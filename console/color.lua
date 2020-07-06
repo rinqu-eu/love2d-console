@@ -37,56 +37,52 @@ end
 --					   1st entry is a table containing a rgb color values between 0-1
 --					   2nd entry is the message text
 
-function color.parse(text)
-	local parsed = {}
+local color_tag_open = "|c%x%x%x%x%x%x%x%x"
+local color_tag_open_len = 10
+local color_tag_close = "|r"
+local color_tag_close_len = 2
 
-	local color_stack = {}
-	local push = function(color) table.insert(color_stack, color) end
-	local pop = function() if (#color_stack > 0) then table.remove(color_stack, #color_stack) end end
-	local peek = function() if (#color_stack > 0) then return color_stack[#color_stack] end end
-	local torgb = function(hex) return {tonumber(hex:sub(1, 2), 16) / 255, tonumber(hex:sub(3, 4), 16) / 255, tonumber(hex:sub(5, 6), 16) / 255, 1} end
-	local offset = 1
+function color.parse(raw_message)
+	local parsed_message = {}
+	local color_stack = new_stack()
+	local offset_into_raw_message = 1
+	local raw_message_length = utf8.len(raw_message)
 
-	local c_tag = "|c%x%x%x%x%x%x%x%x"
-	local c_tag_len = 10
-	local r_tag = "|r"
-	local r_tag_len = 2
+	while (offset_into_raw_message <= raw_message_length) do
+		local remaining_raw_message = utf8.sub(raw_message, offset_into_raw_message)
+		local color_tag_open_idx = utf8.find(remaining_raw_message, color_tag_open)
+		local color_tag_close_idx = utf8.find(remaining_raw_message, color_tag_close)
 
-	while (offset <= utf8.len(text)) do
-		local t = utf8.sub(text, offset)
-		local c_idx = utf8.find(t, c_tag)
-		local r_idx = utf8.find(t, r_tag)
+		-- we are at an open tag, extract the color
+		if (color_tag_open_idx == 1) then
+			local color = utf8.sub(remaining_raw_message, color_tag_open_idx + 2, color_tag_open_idx + 9)
 
-		if (c_idx == 1) then
-			local color = utf8.sub(t, c_idx + 4, c_idx + 9)
-
-			push(color)
-			offset = offset + c_tag_len
-		elseif (r_idx == 1) then
-			pop()
-			offset = offset + r_tag_len
+			color_stack:push("#" .. color)
+			offset_into_raw_message = offset_into_raw_message + color_tag_open_len
+		-- we are at a close tag
+		elseif (color_tag_close_idx == 1) then
+			color_stack:pop()
+			offset_into_raw_message = offset_into_raw_message + color_tag_close_len
+		-- we have a normal string in in front of us
+		-- find out how long it is and push it as a fragment together with its color
 		else
-			local next_tag_idx = (c_idx or r_idx) and math.min(c_idx or math.huge, r_idx or math.huge) or 0
-			local text = utf8.sub(t, 1, next_tag_idx - 1)
+			local next_color_tag_idx = (color_tag_open_idx or color_tag_close_idx) and math.min(color_tag_open_idx or math.huge, color_tag_close_idx or math.huge) or 0
+			local color_ = color.to_RGB(color_stack:peek() or "#ffffffff")
+			local text = utf8.sub(remaining_raw_message, 1, next_color_tag_idx - 1) or ""
 
-			table.insert(parsed, {color = peek() or "ffffff", text = text or ""})
+			table.insert(parsed_message, color_)
+			table.insert(parsed_message, text)
 
-			offset = offset + utf8.len(text)
+			offset_into_raw_message = offset_into_raw_message + utf8.len(text)
 		end
 	end
 
-	if (#parsed == 0) then
-		table.insert(parsed, {color = "ffffff", text = ""})
+	if (#parsed_message == 0) then
+		table.insert(parsed_message, color.to_RGB("#ffffffff"))
+		table.insert(parsed_message, "")
 	end
 
-	local usable = {}
-
-	for i = 1, #parsed do
-		table.insert(usable, torgb(parsed[i].color))
-		table.insert(usable, parsed[i].text)
-	end
-
-	return usable
+	return parsed_message
 end
 
 local function print_parsed_message(parsed_message)
@@ -113,6 +109,8 @@ end
 
 local function compare_parsed_messages(description, parsed_message_1, parsed_message_2)
 	print(description)
+	-- print(#parsed_message_1)
+	-- print(#parsed_message_2)
 	assert(#parsed_message_1 == #parsed_message_2)
 	for i = 1, #parsed_message_1 do
 		if (type(parsed_message_1[i]) == "table") then
@@ -129,13 +127,14 @@ end
 local function run_tests()
 	compare_parsed_messages("empty raw message", color.parse(""), {{1, 1, 1, 1}, ""})
 	compare_parsed_messages("raw message with no color tag", color.parse("test string"), {{1, 1, 1, 1}, "test string"})
-	compare_parsed_messages("raw message with no color close tag", color.parse("|cffff0000test string"), {{1, 0, 0, 1}, "test string"})
+	compare_parsed_messages("raw message with no color close tag", color.parse("|cff0000fftest string"), {{1, 0, 0, 1}, "test string"})
 	compare_parsed_messages("raw message with no color open tag", color.parse("test string|r"), {{1, 1, 1, 1}, "test string"})
-	compare_parsed_messages("raw message with 2 color open tag", color.parse("|cffff0000test   |cff00ff00string"), {{1, 0, 0, 1}, "test   ", {0, 1, 0, 1}, "string"})
-	compare_parsed_messages("raw message with 2 color open tag, 1 close tag", color.parse("|cffff0000test   |cff00ff00string|r   t"), {{1, 0, 0, 1}, "test   ", {0, 1, 0, 1}, "string", {1, 0, 0, 1}, "   t"})
+	compare_parsed_messages("raw message with 2 color open tag", color.parse("|cff0000fftest   |c00ff00ffstring"), {{1, 0, 0, 1}, "test   ", {0, 1, 0, 1}, "string"})
+	compare_parsed_messages("raw message with 2 color open tag, 1 close tag", color.parse("|cff0000fftest   |c00ff00ffstring|r   t"), {{1, 0, 0, 1}, "test   ", {0, 1, 0, 1}, "string", {1, 0, 0, 1}, "   t"})
 	print("color.parse -> all test passed")
 end
 
--- run_tests()
+
+run_tests()
 
 return color

@@ -12,7 +12,7 @@ A console for any Love2D project
    - jump to begining/end of a word (ctrl + left/right arrow)
    - jump to home/end (Home/End)
 - history of executed commands (up/down arrows) (persistant between runs)
-- color printing (|cffRRGGBBTEXT|r syntax or use cprint("rrggbb", text))
+- color printing (|cRRGGBBAATEXT|r syntax or use cprint("rrggbb", text))
 
 ## Special commands
 - **exit** closes console

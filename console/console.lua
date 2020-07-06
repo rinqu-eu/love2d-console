@@ -33,10 +33,10 @@ output_jump_by = 7
 
 toggle_key = "`"
 
-color_info = "429bf4"
-color_warn = "cecb2f"
-color_err = "ea2a2a"
-color_com = "00cc00"
+color_info = "429bf4ff"
+color_warn = "cecb2fff"
+color_err = "ea2a2aff"
+color_com = "00cc00ff"
 
 is_open = false
 unhooked = {}
@@ -533,7 +533,7 @@ function exec_input_buffer()
 	local func, err = loadstring(input_buffer)
 
 	add_to_history(input_buffer)
-	add_to_output("|cff" .. color_com .. ">|r" .. input_buffer)
+	add_to_output("|c" .. color_com .. ">|r" .. input_buffer)
 
 	if (err ~= nil) then
 		print(repl.parse(input_buffer))
@@ -553,22 +553,22 @@ end
 -- #region global functions
 if (expose_output_functions == true) then
 	function _G.warn(...)
-		add_to_output("|cff" .. color_warn .. "warning:|r", ...)
+		add_to_output("|c" .. color_warn .. "warning:|r", ...)
 	end
 
 	function _G.err(...)
-		add_to_output("|cff" .. color_err .. "error:|r", ...)
+		add_to_output("|c" .. color_err .. "error:|r", ...)
 	end
 
 	function _G.info(...)
-		add_to_output("|cff" .. color_info .. "info:|r", ...)
+		add_to_output("|c" .. color_info .. "info:|r", ...)
 	end
 
 	function _G.cprint(color, ...)
 		assert(string.len(color) == 6)
 
 		unhooked.print(...)
-		add_to_output("|cff" .. color .. ... .. "|r")
+		add_to_output("|c" .. color .. "ff" .. ... .. "|r")
 	end
 end
 -- #endregion global functions
