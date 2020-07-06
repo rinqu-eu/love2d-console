@@ -27,6 +27,16 @@ local function new_stack()
 	return {push = push, pop = pop, peek = peek}
 end
 
+-- NOTE (rinqu):
+-- the reason why parsed_message looks like it does is because I'm using
+-- functionality of love.graphics.print to handle color printing for me
+
+-- raw_message		-> standard string passed to the parser
+-- parsed_message	-> table containing chunks
+-- chunk			-> 2 entries in the table that need to be one after the other
+--					   1st entry is a table containing a rgb color values between 0-1
+--					   2nd entry is the message text
+
 function color.parse(text)
 	local parsed = {}
 
