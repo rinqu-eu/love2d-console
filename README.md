@@ -1,7 +1,7 @@
 # love2d-console
 A console for any Love2D project
 
-![alt text](\screenshots\main.png)
+![alt text](/screenshots/main.png?raw=true)
 
 ## Features (subject to change)
 - basic REPL
@@ -22,11 +22,11 @@ A console for any Love2D project
 
 ## Installation
 - Copy **console** folder next to your main.lua:
-   >/
-| -- main.lua
-| -- console
-|&emsp;&emsp;| -- console.lua
-|&emsp;&emsp;| -- \<other console files\>.lua
+   >/<br>
+| -- main.lua<br>
+| -- console<br>
+|&emsp;&emsp;| -- console.lua<br>
+|&emsp;&emsp;| -- \<other console files\>.lua<br>
 |&emsp;&emsp;` -- font
 
 - On top of your main file add:
