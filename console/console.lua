@@ -148,13 +148,13 @@ function move_cursor_end()
 end
 
 function jump_cursor_left()
-	if (string.match(utf8.sub(input_buffer, cursor_idx, cursor_idx), "%p") ~= nil) then
+	if (string.match(utf8.sub(input_buffer, cursor_idx, cursor_idx), "[%s%p]") ~= nil) then
 		cursor_idx = math.max(0, cursor_idx - 1)
 	else
 		local p_idx
 
 		for i = cursor_idx - 1, 0, -1 do
-			if (string.match(utf8.sub(input_buffer, i, i), "%p") ~= nil) then
+			if (string.match(utf8.sub(input_buffer, i, i), "[%s%p]") ~= nil) then
 				p_idx = i
 				break
 			end
@@ -167,13 +167,13 @@ function jump_cursor_left()
 end
 
 function jump_cursor_right()
-	if (string.match(utf8.sub(input_buffer, cursor_idx + 1, cursor_idx + 1), "%p") ~= nil) then
+	if (string.match(utf8.sub(input_buffer, cursor_idx + 1, cursor_idx + 1), "[%s%p]") ~= nil) then
 		cursor_idx = math.min(cursor_idx + 1, utf8.len(input_buffer))
 	else
 		local p_idx
 
 		for i = cursor_idx, utf8.len(input_buffer) do
-			if (string.match(utf8.sub(input_buffer, i + 1, i + 1), "%p") ~= nil) then
+			if (string.match(utf8.sub(input_buffer, i + 1, i + 1), "[%s%p]") ~= nil) then
 				p_idx = i
 				break
 			end
