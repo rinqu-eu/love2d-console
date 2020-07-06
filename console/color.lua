@@ -19,6 +19,14 @@ function color.to_RGB(hex_string)
 	return {r, g, b, a}
 end
 
+local function new_stack()
+	local push = function(self, color) table.insert(self, color) end
+	local pop = function (self) if (#self > 0) then table.remove(self, #self) end end
+	local peek = function (self) if (#self > 0) then return self[#self] end end
+
+	return {push = push, pop = pop, peek = peek}
+end
+
 function color.parse(text)
 	local parsed = {}
 
