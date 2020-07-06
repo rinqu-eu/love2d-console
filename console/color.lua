@@ -14,7 +14,7 @@ function color.to_RGB(hex_string)
 	local r = tonumber(hex_string:sub(2, 3), 16) / 255
 	local g = tonumber(hex_string:sub(4, 5), 16) / 255
 	local b = tonumber(hex_string:sub(6, 7), 16) / 255
-	local a
+	local a = 1.0
 
 	if (len == 9) then
 		a = tonumber(hex_string:sub(8, 9), 16) / 255
