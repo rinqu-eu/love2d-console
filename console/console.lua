@@ -519,29 +519,39 @@ function clear_esc()
 	end
 end
 
+local commands = {
+	["$git"] = git,
+	["$clear"] = clear,
+	["$exit"] = exit
+}
+
 function exec_input_buffer()
 	if (input_buffer == "") then return end
-	if (input_buffer == "qqq") then quit() return end
-	if (input_buffer == "git") then git() return end
-	if (input_buffer == "clear") then clear() return end
-	if (input_buffer == "exit") then exit() return end
+	if (input_buffer == "qqq") then quit() end
 
 	if (scroll_output_on_exec == true) then
 		output_idx = 0
 	end
 
-	local func, err = loadstring(input_buffer)
-
 	add_to_history(input_buffer)
 	add_to_output("|c" .. color_com .. ">|r" .. input_buffer)
 
-	if (err ~= nil) then
-		print(repl.parse(input_buffer))
+	if (utf8.sub(input_buffer, 1, 1) == "$") then
+		if (commands[input_buffer] ~= nil) then
+			commands[input_buffer]()
+		end
 	else
-		local status, err = pcall(func)
+		local func, err = loadstring(input_buffer)
 
 		if (err ~= nil) then
-			print("pcall: " .. err)
+			print(repl.parse(input_buffer))
+
+		else
+			local status, err = pcall(func)
+
+			if (err ~= nil) then
+				print("pcall: " .. err)
+			end
 		end
 	end
 

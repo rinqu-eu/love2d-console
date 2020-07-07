@@ -15,10 +15,10 @@ A console for any Love2D project
 - color printing (|cRRGGBBAATEXT|r syntax or use cprint("rrggbb", text))
 
 ## Special commands
-- **exit** closes console
-- **clear** clears output and history
 - **qqq** closes Love2D
-- **git** prints link to this repo
+- **$exit** closes console
+- **$clear** clears output and history
+- **$git** prints link to this repo
 
 ## Installation
 - Copy **console** folder next to your main.lua:
