@@ -23,8 +23,8 @@ font_h = font:getHeight()
 background_color = util.to_RGB_table("#2929297F")
 selected_color = util.to_RGB_table("#ABABAB7F")
 
-cursor_block_color = util.to_RGB_table("FFFFFFF7F")
-cursor_line_color = util.to_RGB_table("FFFFFFFFF")
+cursor_block_color = util.to_RGB_table("#FFFFFF7F")
+cursor_line_color = util.to_RGB_table("#FFFFFFFF")
 cursor_style = "block" -- "block" or "line"
 cursor_blink_duration = 0.5
 
