@@ -519,10 +519,71 @@ function clear_esc()
 	end
 end
 
+local changable_settings = {
+	["background_color"] = true,
+	["cursor_style"] = true
+}
+
+function list()
+	for _, name in pairs(changable_settings) do
+		local value = console[name]
+
+		if (type(value) == "table") then
+			print(name, " -> ", table.concat(value, " "))
+		else
+			print(name, " -> ", value)
+		end
+	end
+end
+
+function parse_command(command)
+	local command_len = utf8.len(command)
+	local offset_into_command = 1
+
+	local parsed_command = {}
+
+	while (offset_into_command <= command_len) do
+		local remaining_command = utf8.sub(command, offset_into_command)
+		local space_idx = utf8.find(remaining_command, " ")
+
+		if (space_idx == nil) then
+			table.insert(parsed_command, remaining_command)
+			break
+		elseif (space_idx == 1) then
+			offset_into_command = offset_into_command + 1
+		else
+			local fragment = utf8.sub(remaining_command, 1, space_idx - 1)
+
+			table.insert(parsed_command, fragment)
+			offset_into_command = offset_into_command + utf8.len(fragment)
+		end
+	end
+
+	for i, fragment in ipairs(parsed_command) do
+		print("_" .. fragment  .. "_")
+	end
+
+	return parsed_command
+end
+
+function set(command)
+	local parsed_command = parse_command(command)
+	local setting = parsed_command[2]
+	local value = parsed_command[3]
+
+	if (changable_settings[setting] == true) then
+		console[setting] = value
+	end
+
+	update_ui(love.graphics.getWidth(), love.graphics.getHeight())
+end
+
 local commands = {
 	["$git"] = git,
 	["$clear"] = clear,
-	["$exit"] = exit
+	["$exit"] = exit,
+	["$list"] = list,
+	["$set"] = set
 }
 
 function exec_input_buffer()
@@ -537,8 +598,12 @@ function exec_input_buffer()
 	add_to_output("|c" .. color_com .. ">|r" .. input_buffer)
 
 	if (utf8.sub(input_buffer, 1, 1) == "$") then
-		if (commands[input_buffer] ~= nil) then
-			commands[input_buffer]()
+		local space_idx = utf8.find(input_buffer, " ")
+		local offset = space_idx and space_idx - 1 or nil
+		local command = utf8.sub(input_buffer, 1, offset)
+
+		if (commands[command] ~= nil) then
+			commands[command](input_buffer)
 		end
 	else
 		local func, err = loadstring(input_buffer)
