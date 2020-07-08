@@ -2,6 +2,7 @@ local path = ...
 local path_req = path:sub(1, -7)
 
 local utf8 = require(path_req .. ".utf8")
+local util = require(path_req .. ".util")
 
 local color = {}
 
@@ -11,22 +12,6 @@ local function stack()
 	local peek = function (self) if (#self > 0) then return self[#self] end end
 
 	return {push = push, pop = pop, peek = peek}
-end
-
-function color.to_RGB(hex_string)
-	local len = hex_string:len()
-	assert(len == 7 or len == 9, "hex string expected, #rrggbb or #rrggbbaa")
-
-	local r = tonumber(hex_string:sub(2, 3), 16) / 255
-	local g = tonumber(hex_string:sub(4, 5), 16) / 255
-	local b = tonumber(hex_string:sub(6, 7), 16) / 255
-	local a = 1.0
-
-	if (len == 9) then
-		a = tonumber(hex_string:sub(8, 9), 16) / 255
-	end
-
-	return {r, g, b, a}
 end
 
 local color_tag_open = "|c%x%x%x%x%x%x%x%x"
@@ -56,7 +41,7 @@ function color.parse(raw_message)
 			offset_into_raw_message = offset_into_raw_message + color_tag_close_len
 		else
 			local next_color_tag_idx = (color_tag_open_idx or color_tag_close_idx) and math.min(color_tag_open_idx or math.huge, color_tag_close_idx or math.huge) or 0
-			local color_ = color.to_RGB(color_stack:peek() or "#ffffffff")
+			local color_ = util.to_RGB_table(color_stack:peek() or "#ffffffff")
 			local text = utf8.sub(remaining_raw_message, 1, next_color_tag_idx - 1) or ""
 
 			table.insert(parsed_message, color_)
@@ -67,7 +52,7 @@ function color.parse(raw_message)
 	end
 
 	if (#parsed_message == 0) then
-		table.insert(parsed_message, color.to_RGB("#ffffffff"))
+		table.insert(parsed_message, util.to_RGB_table("#ffffffff"))
 		table.insert(parsed_message, "")
 	end
 

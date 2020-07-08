@@ -13,7 +13,7 @@ path_req = path:sub(1, -9)
 path_load = path:sub(1, -9):gsub("%.", "/")
 
 local utf8 = require(path_req .. ".utf8")
-local math = require(path_req .. ".math")
+local util = require(path_req .. ".util")
 local repl = require(path_req .. ".repl")
 local color = require(path_req .. ".color")
 
@@ -21,11 +21,11 @@ font = love.graphics.newFont(path_load .. "/font/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
-background_color = color.to_RGB("#2929297F")
-selected_color = color.to_RGB("#ABABAB7F")
+background_color = util.to_RGB_table("#2929297F")
+selected_color = util.to_RGB_table("#ABABAB7F")
 
-cursor_block_color = color.to_RGB("FFFFFFF7F")
-cursor_line_color = color.to_RGB("FFFFFFFFF")
+cursor_block_color = util.to_RGB_table("FFFFFFF7F")
+cursor_line_color = util.to_RGB_table("FFFFFFFFF")
 cursor_style = "block" -- "block" or "line"
 cursor_blink_duration = 0.5
 
@@ -126,12 +126,12 @@ function move_cursor_left()
 end
 
 function move_cursor_to_position(pos)
-	cursor_idx = math.clamp(0, pos, utf8.len(input_buffer))
+	cursor_idx = util.clamp(0, pos, utf8.len(input_buffer))
 	update_cursor()
 end
 
 function move_cursor_by_offset(offset)
-	cursor_idx = math.clamp(0, cursor_idx + offset, utf8.len(input_buffer))
+	cursor_idx = util.clamp(0, cursor_idx + offset, utf8.len(input_buffer))
 	update_cursor()
 end
 
@@ -478,7 +478,7 @@ function clear_output_history()
 end
 
 function move_output_by(n)
-	output_idx = math.clamp(0, output_idx + n, math.max(#output_buffer - num_output_buffer_lines, 0))
+	output_idx = util.clamp(0, output_idx + n, math.max(#output_buffer - num_output_buffer_lines, 0))
 end
 
 function move_output_up()
@@ -766,7 +766,7 @@ function draw_ui()
 	love.graphics.setColor(ui.background.color)
 	love.graphics.rectangle("fill", ui.background.x, ui.background.y, ui.background.w, ui.background.h + font_h)
 
-	love.graphics.setColor(color.to_RGB("#FFFFFFFF"))
+	love.graphics.setColor(util.to_RGB_table("#FFFFFFFF"))
 	love.graphics.print(">", ui.arrow.x, ui.arrow.y)
 	love.graphics.print(input_buffer or "", ui.input_line.x, ui.input_line.y)
 	love.graphics.print("C: " .. cursor_idx .. " L: 0", ui.cursor_counter.x, ui.cursor_counter.y)
