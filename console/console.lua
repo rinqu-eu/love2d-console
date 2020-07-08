@@ -608,26 +608,30 @@ function exec_input_buffer()
 end
 -- #endregion special commands
 
+function warn(...)
+	add_to_output("|c" .. color_warn .. "warning:|r", ...)
+end
+
+function err(...)
+	add_to_output("|c" .. color_err .. "error:|r", ...)
+end
+
+function info(...)
+	add_to_output("|c" .. color_info .. "info:|r", ...)
+end
+
+function cprint(color, ...)
+	assert(string.len(color) == 6)
+	unhooked.print(...)
+	add_to_output("|c" .. color .. "ff" .. ... .. "|r")
+end
+
 -- #region global functions
 if (expose_output_functions == true) then
-	function _G.warn(...)
-		add_to_output("|c" .. color_warn .. "warning:|r", ...)
-	end
-
-	function _G.err(...)
-		add_to_output("|c" .. color_err .. "error:|r", ...)
-	end
-
-	function _G.info(...)
-		add_to_output("|c" .. color_info .. "info:|r", ...)
-	end
-
-	function _G.cprint(color, ...)
-		assert(string.len(color) == 6)
-
-		unhooked.print(...)
-		add_to_output("|c" .. color .. "ff" .. ... .. "|r")
-	end
+	_G.warn = warn
+	_G.err = err
+	_G.info = info
+	_G.cprint = cprint
 end
 -- #endregion global functions
 
