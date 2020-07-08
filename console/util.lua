@@ -31,4 +31,20 @@ function util.to_RGB_table(hex_string)
 	return {r, g, b, a}
 end
 
+function util.to_hex_string(RGB_table)
+	assert(type(RGB_table) == "table", "arg #1 table expected, got " .. type(RGB_table))
+	assert(#RGB_table == 3 or #RGB_table == 4, "arg #1 RGB table expected, got _" .. #RGB_table .. "_")
+
+	local r = string.format("%02x", util.clamp(RGB_table[1], 0, 1) * 255)
+	local b = string.format("%02x", util.clamp(RGB_table[2], 0, 1) * 255)
+	local g = string.format("%02x", util.clamp(RGB_table[3], 0, 1) * 255)
+	local a = ""
+
+	if (#RGB_table == 4) then
+		a = string.format("%02x", util.clamp(RGB_table[4], 0, 1) * 255)
+	end
+
+	return "#" .. r .. g .. b .. a
+end
+
 return util
