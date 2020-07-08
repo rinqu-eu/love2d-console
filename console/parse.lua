@@ -14,6 +14,14 @@ local function stack()
 	return {push = push, pop = pop, peek = peek}
 end
 
+local function queue()
+	local enqueue = function(self, element) table.insert(self, element) end
+	local dequeue = function(self) if (#self > 0) then return table.remove(self, 1) end end
+	local peek = function(self) if (#self > 0) then return self[1] end end
+
+	return {enqueue = enqueue, dequeue = dequeue, peek = peek}
+end
+
 function parse.repl(msg)
 	local queue = {}
 	local enqueue = function(v)	table.insert(queue, v) end
