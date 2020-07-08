@@ -536,13 +536,13 @@ local changable_settings = {
 }
 
 function list()
-	for key, _ in pairs(changable_settings) do
-		local value = console[key]
+	for setting, _ in pairs(changable_settings) do
+		local value = console[setting]
 
 		if (type(value) == "table") then
-			print(key, " -> ", changable_settings[value](value))
+			print(setting, " -> ", changable_settings[setting][2](value))
 		else
-			print(key, " -> ", value)
+			print(setting, " -> ", value)
 		end
 	end
 end
