@@ -521,7 +521,19 @@ end
 
 local changable_settings = {
 	["background_color"] = true,
-	["cursor_style"] = true
+	["selected_color"] = true,
+	["cursor_block_colo"] = true,
+	["cursor_line_color"] = true,
+	["cursor_style"] = true,
+	["cursor_blink_duration"] = true,
+	["output_jump_by"] = true,
+	["toggle_key"] = true,
+	["color_info"] = true,
+	["color_warn"] = true,
+	["color_err"] = true,
+	["color_com"] = true,
+	["scroll_output_on_exec"] = true,
+	["expose_output_functions"] = true
 }
 
 function list()
