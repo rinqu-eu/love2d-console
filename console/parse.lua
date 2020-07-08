@@ -23,9 +23,7 @@ local function queue()
 end
 
 function parse.repl(msg)
-	local queue = {}
-	local enqueue = function(v)	table.insert(queue, v) end
-	local dequeue = function() local v = queue[1] table.remove(queue, 1) return v end
+	local queue = queue()
 	local num_loops = 0
 
 	while (msg ~= "") do
@@ -44,13 +42,13 @@ function parse.repl(msg)
 		elseif (bra_idx == 1) then
 			local end_idx = utf8.find(msg, "%]")
 			if (utf8.sub(msg, 2, 2) == "\"") then
-				enqueue(utf8.sub(msg, 3, end_idx - 2))
+				queue:enqueue(utf8.sub(msg, 3, end_idx - 2))
 			else
-				enqueue(tonumber(utf8.sub(msg, 2, end_idx - 1)))
+				queue:enqueue(tonumber(utf8.sub(msg, 2, end_idx - 1)))
 			end
 			msg = utf8.sub(msg, end_idx + 1)
 		else
-			enqueue(utf8.sub(msg, 1, first_idx - 1))
+			queue:enqueue(utf8.sub(msg, 1, first_idx - 1))
 			msg = utf8.sub(msg, first_idx)
 		end
 
@@ -60,7 +58,7 @@ function parse.repl(msg)
 	local value
 
 	while (#queue > 0) do
-		local t = dequeue()
+		local t = queue:dequeue()
 
 		if (value == nil) then
 			value = _G[t]
