@@ -121,4 +121,34 @@ function parse.color(raw_message)
 	return parsed_message
 end
 
+function parse.command(command)
+	local command_len = utf8.len(command)
+	local offset_into_command = 1
+
+	local parsed_command = {}
+
+	while (offset_into_command <= command_len) do
+		local remaining_command = utf8.sub(command, offset_into_command)
+		local space_idx = utf8.find(remaining_command, " ")
+
+		if (space_idx == nil) then
+			table.insert(parsed_command, remaining_command)
+			break
+		elseif (space_idx == 1) then
+			offset_into_command = offset_into_command + 1
+		else
+			local fragment = utf8.sub(remaining_command, 1, space_idx - 1)
+
+			table.insert(parsed_command, fragment)
+			offset_into_command = offset_into_command + utf8.len(fragment)
+		end
+	end
+
+	for i, fragment in ipairs(parsed_command) do
+		print("_" .. fragment  .. "_")
+	end
+
+	return parsed_command
+end
+
 return parse
