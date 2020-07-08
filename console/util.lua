@@ -20,7 +20,7 @@ function util.to_RGB_table(hex_string)
 	local b = tonumber(hex_string:sub(6, 7), 16) / 255
 	local a = 1.0
 
-	if (len == 9) then
+	if (hex_string:len() == 9) then
 		a = tonumber(hex_string:sub(8, 9), 16) / 255
 	end
 
