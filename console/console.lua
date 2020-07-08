@@ -14,8 +14,7 @@ path_load = path:sub(1, -9):gsub("%.", "/")
 
 local utf8 = require(path_req .. ".utf8")
 local util = require(path_req .. ".util")
-local repl = require(path_req .. ".repl")
-local color = require(path_req .. ".color")
+local parse = require(path_req .. ".parse")
 
 font = love.graphics.newFont(path_load .. "/font/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
@@ -468,7 +467,7 @@ function add_to_output(...)
 		arg[i] = tostring(arg[i])
 	end
 
-	msg = color.parse(table.concat(arg, " "))
+	msg = parse.color(table.concat(arg, " "))
 	table.insert(output_buffer, msg)
 end
 
@@ -621,7 +620,7 @@ function exec_input_buffer()
 		local func, err = loadstring(input_buffer)
 
 		if (err ~= nil) then
-			print(repl.parse(input_buffer))
+			print(parse.repl(input_buffer))
 
 		else
 			local status, err = pcall(func)
