@@ -1,6 +1,9 @@
 local util = {}
 
-function util.clamp(min, value, max)
+function util.clamp(value, min, max)
+	assert(type(value) == "number", "arg #1 number expected, got " .. type(value))
+	assert(type(min) == "number", "arg #2 number expected, got " .. type(min))
+	assert(type(max) == "number", "arg #3 number expected, got " .. type(max))
 	if (value > max) then
 		return max
 	elseif (value < min) then

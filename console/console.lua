@@ -125,12 +125,12 @@ function move_cursor_left()
 end
 
 function move_cursor_to_position(pos)
-	cursor_idx = util.clamp(0, pos, utf8.len(input_buffer))
+	cursor_idx = util.clamp(pos, 0, utf8.len(input_buffer))
 	update_cursor()
 end
 
 function move_cursor_by_offset(offset)
-	cursor_idx = util.clamp(0, cursor_idx + offset, utf8.len(input_buffer))
+	cursor_idx = util.clamp(cursor_idx + offset, 0, utf8.len(input_buffer))
 	update_cursor()
 end
 
@@ -477,7 +477,7 @@ function clear_output_history()
 end
 
 function move_output_by(n)
-	output_idx = util.clamp(0, output_idx + n, math.max(#output_buffer - num_output_buffer_lines, 0))
+	output_idx = util.clamp(output_idx + n, 0, math.max(#output_buffer - num_output_buffer_lines, 0))
 end
 
 function move_output_up()
