@@ -7,8 +7,8 @@ local util = require(path_req .. ".util")
 local parse = {}
 
 local function stack()
-	local push = function(self, color) table.insert(self, color) end
-	local pop = function (self) if (#self > 0) then table.remove(self, #self) end end
+	local push = function(self, element) table.insert(self, element) end
+	local pop = function (self) if (#self > 0) then return table.remove(self, #self) end end
 	local peek = function (self) if (#self > 0) then return self[#self] end end
 
 	return {push = push, pop = pop, peek = peek}
