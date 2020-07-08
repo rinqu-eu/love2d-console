@@ -11,8 +11,9 @@ function util.clamp(min, value, max)
 end
 
 function util.to_RGB_table(hex_string)
-	local len = hex_string:len()
-	assert(len == 7 or len == 9, "hex string expected, #rrggbb or #rrggbbaa")
+	assert(type(hex_string) == "string", "arg #1 string expected, got " .. type(hex_string))
+	assert(hex_string:len() == 7 or hex_string:len() == 9, "arg #1 hex string expected, got _" .. hex_string .. "_")
+	assert(string.find(hex_string, "#%x%x%x%x%x%x") ~= nil or string.find(hex_string, "#%x%x%x%x%x%x%x%x") ~= nil, "arg #1 hex string expected, got _" .. hex_string .. "_")
 
 	local r = tonumber(hex_string:sub(2, 3), 16) / 255
 	local g = tonumber(hex_string:sub(4, 5), 16) / 255
