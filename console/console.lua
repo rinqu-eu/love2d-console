@@ -519,10 +519,10 @@ function clear_esc()
 end
 
 local changable_settings = {
-	["background_color"] = true,
-	["selected_color"] = true,
-	["cursor_block_colo"] = true,
-	["cursor_line_color"] = true,
+	["background_color"] = {util.to_RGB_table, util.to_hex_string},
+	["selected_color"] = {util.to_RGB_table, util.to_hex_string},
+	["cursor_block_color"] = {util.to_RGB_table, util.to_hex_string},
+	["cursor_line_color"] = {util.to_RGB_table, util.to_hex_string},
 	["cursor_style"] = true,
 	["cursor_blink_duration"] = true,
 	["output_jump_by"] = true,
@@ -540,7 +540,7 @@ function list()
 		local value = console[key]
 
 		if (type(value) == "table") then
-			print(key, " -> ", table.concat(value, " "))
+			print(key, " -> ", changable_settings[value](value))
 		else
 			print(key, " -> ", value)
 		end
@@ -554,6 +554,8 @@ function set(command)
 
 	if (changable_settings[setting] == true) then
 		console[setting] = value
+	elseif (type(changable_settings[setting]) == "table") then
+		console[setting] = changable_settings[setting][1](value)
 	end
 
 	update_ui(love.graphics.getWidth(), love.graphics.getHeight())
