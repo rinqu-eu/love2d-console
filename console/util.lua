@@ -14,6 +14,14 @@ function util.clamp(value, min, max)
 	return value
 end
 
+function util.is_hex_string(hex_string)
+	return true
+end
+
+function util.is_RGB_table(RGB_table)
+	return true
+end
+
 function util.to_RGB_table(hex_string)
 	assert(type(hex_string) == "string", "arg #1 string expected, got " .. type(hex_string))
 	assert(hex_string:len() == 7 or hex_string:len() == 9, "arg #1 hex string expected, got _" .. hex_string .. "_")
