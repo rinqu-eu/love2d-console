@@ -101,7 +101,7 @@ function parse.color(raw_message)
 			offset_into_raw_message = offset_into_raw_message + color_tag_close_len
 		else
 			local next_color_tag_idx = (color_tag_open_idx or color_tag_close_idx) and math.min(color_tag_open_idx or math.huge, color_tag_close_idx or math.huge) or 0
-			local color_ = util.to_RGB_table(color_stack:peek() or "#ffffffff")
+			local color_ = util.to_rgb_table(color_stack:peek() or "#ffffffff")
 			local text = utf8.sub(remaining_raw_message, 1, next_color_tag_idx - 1) or ""
 
 			table.insert(parsed_message, color_)
@@ -112,7 +112,7 @@ function parse.color(raw_message)
 	end
 
 	if (#parsed_message == 0) then
-		table.insert(parsed_message, util.to_RGB_table("#ffffffff"))
+		table.insert(parsed_message, util.to_rgb_table("#ffffffff"))
 		table.insert(parsed_message, "")
 	end
 

@@ -20,11 +20,11 @@ font = love.graphics.newFont(path_load .. "/font/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
 
-background_color = util.to_RGB_table("#2929297F")
-selected_color = util.to_RGB_table("#ABABAB7F")
+background_color = util.to_rgb_table("#2929297F")
+selected_color = util.to_rgb_table("#ABABAB7F")
 
-cursor_block_color = util.to_RGB_table("#FFFFFF7F")
-cursor_line_color = util.to_RGB_table("#FFFFFFFF")
+cursor_block_color = util.to_rgb_table("#FFFFFF7F")
+cursor_line_color = util.to_rgb_table("#FFFFFFFF")
 cursor_style = "block" -- "block" or "line"
 cursor_blink_duration = 0.5
 
@@ -519,10 +519,10 @@ function clear_esc()
 end
 
 local changable_settings = {
-	["background_color"] = {util.to_RGB_table, util.to_hex_string},
-	["selected_color"] = {util.to_RGB_table, util.to_hex_string},
-	["cursor_block_color"] = {util.to_RGB_table, util.to_hex_string},
-	["cursor_line_color"] = {util.to_RGB_table, util.to_hex_string},
+	["background_color"] = {util.to_rgb_table, util.to_hex_string},
+	["selected_color"] = {util.to_rgb_table, util.to_hex_string},
+	["cursor_block_color"] = {util.to_rgb_table, util.to_hex_string},
+	["cursor_line_color"] = {util.to_rgb_table, util.to_hex_string},
 	["cursor_style"] = true,
 	["cursor_blink_duration"] = true,
 	["output_jump_by"] = true,
@@ -741,7 +741,7 @@ function draw_ui()
 	love.graphics.setColor(ui.background.color)
 	love.graphics.rectangle("fill", ui.background.x, ui.background.y, ui.background.w, ui.background.h + font_h)
 
-	love.graphics.setColor(util.to_RGB_table("#FFFFFFFF"))
+	love.graphics.setColor(util.to_rgb_table("#FFFFFFFF"))
 	love.graphics.print(">", ui.arrow.x, ui.arrow.y)
 	love.graphics.print(input_buffer or "", ui.input_line.x, ui.input_line.y)
 	love.graphics.print("C: " .. cursor_idx .. " L: 0", ui.cursor_counter.x, ui.cursor_counter.y)

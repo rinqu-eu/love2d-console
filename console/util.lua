@@ -33,31 +33,31 @@ function util.is_hex_string(hex_string)
 	return true
 end
 
-function util.is_RGB_table(RGB_table)
-	if (type(RGB_table) ~= "table") then
-		return false, "arg #1 -> table expected, got _" .. type(RGB_table) .. "_"
+function util.is_rgb_table(rgb_table)
+	if (type(rgb_table) ~= "table") then
+		return false, "arg #1 -> table expected, got _" .. type(rgb_table) .. "_"
 	end
 
-	local len = #RGB_table
+	local len = #rgb_table
 
 	if (len < 3 or len > 4) then
 		return false, "arg #1 -> length 3 or 4 expected, got _" .. len .. "_"
 	end
 
 	for i = 1, len do
-		if (type(RGB_table[i]) ~= "number") then
-			return false, "arg #1[" .. i .. "] -> number expected, got _" .. type(RGB_table[i]) .. "_"
+		if (type(rgb_table[i]) ~= "number") then
+			return false, "arg #1[" .. i .. "] -> number expected, got _" .. type(rgb_table[i]) .. "_"
 		end
 
-		if (RGB_table[i] > 1 or RGB_table[i] < 0) then
-			return false, "arg #1[" .. i .. "] -> value between 0 and 1 expected, got _" .. RGB_table[i] .. "_"
+		if (rgb_table[i] > 1 or rgb_table[i] < 0) then
+			return false, "arg #1[" .. i .. "] -> value between 0 and 1 expected, got _" .. rgb_table[i] .. "_"
 		end
 	end
 
 	return true
 end
 
-function util.to_RGB_table(hex_string)
+function util.to_rgb_table(hex_string)
 	assert(type(hex_string) == "string", "arg #1 string expected, got " .. type(hex_string))
 	assert(hex_string:len() == 7 or hex_string:len() == 9, "arg #1 hex string expected, got _" .. hex_string .. "_")
 	assert(hex_string:find("#%x%x%x%x%x%x") ~= nil or hex_string:find("#%x%x%x%x%x%x%x%x") ~= nil, "arg #1 hex string expected, got _" .. hex_string .. "_")
@@ -74,17 +74,17 @@ function util.to_RGB_table(hex_string)
 	return {r, g, b, a}
 end
 
-function util.to_hex_string(RGB_table)
-	assert(type(RGB_table) == "table", "arg #1 table expected, got " .. type(RGB_table))
-	assert(#RGB_table == 3 or #RGB_table == 4, "arg #1 RGB table expected, got _" .. #RGB_table .. "_")
+function util.to_hex_string(rgb_table)
+	assert(type(rgb_table) == "table", "arg #1 table expected, got " .. type(rgb_table))
+	assert(#rgb_table == 3 or #rgb_table == 4, "arg #1 RGB table expected, got _" .. #rgb_table .. "_")
 
-	local r = string.format("%02x", util.clamp(RGB_table[1], 0, 1) * 255)
-	local b = string.format("%02x", util.clamp(RGB_table[2], 0, 1) * 255)
-	local g = string.format("%02x", util.clamp(RGB_table[3], 0, 1) * 255)
+	local r = string.format("%02x", util.clamp(rgb_table[1], 0, 1) * 255)
+	local b = string.format("%02x", util.clamp(rgb_table[2], 0, 1) * 255)
+	local g = string.format("%02x", util.clamp(rgb_table[3], 0, 1) * 255)
 	local a = ""
 
-	if (#RGB_table == 4) then
-		a = string.format("%02x", util.clamp(RGB_table[4], 0, 1) * 255)
+	if (#rgb_table == 4) then
+		a = string.format("%02x", util.clamp(rgb_table[4], 0, 1) * 255)
 	end
 
 	return "#" .. r .. g .. b .. a
