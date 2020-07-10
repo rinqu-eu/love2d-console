@@ -748,7 +748,7 @@ function draw_ui()
 	love.graphics.setColor(util.to_rgb_table("#FFFFFFFF"))
 	love.graphics.print(">", ui.arrow.x, ui.arrow.y)
 	love.graphics.print(input_buffer or "", ui.input_line.x, ui.input_line.y)
-	love.graphics.print("C: " .. cursor_idx .. " L: 0", ui.cursor_counter.x, ui.cursor_counter.y)
+	love.graphics.print("C: " .. cursor_idx + 1 .. " L: 1", ui.cursor_counter.x, ui.cursor_counter.y)
 
 	for i = 1, num_output_buffer_lines do
 		local idx = #output_buffer - i + 1
