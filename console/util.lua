@@ -58,10 +58,6 @@ function util.is_valid_rgb_table(rgb_table)
 end
 
 function util.to_rgb_table(hex_string)
-	assert(type(hex_string) == "string", "arg #1 string expected, got " .. type(hex_string))
-	assert(hex_string:len() == 7 or hex_string:len() == 9, "arg #1 hex string expected, got _" .. hex_string .. "_")
-	assert(hex_string:find("#%x%x%x%x%x%x") ~= nil or hex_string:find("#%x%x%x%x%x%x%x%x") ~= nil, "arg #1 hex string expected, got _" .. hex_string .. "_")
-
 	local r = tonumber(hex_string:sub(2, 3), 16) / 255
 	local g = tonumber(hex_string:sub(4, 5), 16) / 255
 	local b = tonumber(hex_string:sub(6, 7), 16) / 255
@@ -75,9 +71,6 @@ function util.to_rgb_table(hex_string)
 end
 
 function util.to_hex_string(rgb_table)
-	assert(type(rgb_table) == "table", "arg #1 table expected, got " .. type(rgb_table))
-	assert(#rgb_table == 3 or #rgb_table == 4, "arg #1 RGB table expected, got _" .. #rgb_table .. "_")
-
 	local r = string.format("%02x", util.clamp(rgb_table[1], 0, 1) * 255)
 	local b = string.format("%02x", util.clamp(rgb_table[2], 0, 1) * 255)
 	local g = string.format("%02x", util.clamp(rgb_table[3], 0, 1) * 255)
