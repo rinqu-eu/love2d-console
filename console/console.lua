@@ -519,31 +519,37 @@ function clear_esc()
 end
 
 local changable_settings = {
-	["background_color"] = {util.to_rgb_table, util.to_hex_string},
-	["selected_color"] = {util.to_rgb_table, util.to_hex_string},
-	["cursor_block_color"] = {util.to_rgb_table, util.to_hex_string},
-	["cursor_line_color"] = {util.to_rgb_table, util.to_hex_string},
-	["cursor_style"] = true,
-	["cursor_blink_duration"] = true,
-	["output_jump_by"] = true,
-	["toggle_key"] = true,
-	["color_info"] = true,
-	["color_warn"] = true,
-	["color_err"] = true,
-	["color_com"] = true,
-	["scroll_output_on_exec"] = true,
-	["expose_output_functions"] = true
+	["background_color"] = {
+		get = function() return util.to_hex_string(background_color) end,
+		set = function(value) local success, err = util.is_valid_hex_string(value) if (not success) then print(err) return end background_color = util.to_rgb_table(value) end
+	},
+	["selected_color"] = {
+		get = function() return util.to_hex_string(selected_color) end,
+		set = function(value) local success, err = util.is_valid_hex_string(value) if (not success) then print(err) return end selected_color = util.to_rgb_table(value) end
+	},
+	["cursor_block_color"] = {
+		get = function() return util.to_hex_string(cursor_block_color) end,
+		set = function(value) local success, err = util.is_valid_hex_string(value) if (not success) then print(err) return end cursor_block_color = util.to_rgb_table(value) end,
+	},
+	["cursor_line_color"] = {
+		get = function() return util.to_hex_string(cursor_line_color) end,
+		set = function(value) local success, err = util.is_valid_hex_string(value) if (not success) then print(err) return end cursor_line_color = util.to_rgb_table(value) end,
+	},
+	["cursor_style"] = nil,
+	["cursor_blink_duration"] = nil,
+	["output_jump_by"] = nil,
+	["toggle_key"] = nil,
+	["color_info"] = nil,
+	["color_warn"] = nil,
+	["color_err"] = nil,
+	["color_com"] = nil,
+	["scroll_output_on_exec"] = nil,
+	["expose_output_functions"] = nil
 }
 
 function list()
 	for setting, _ in pairs(changable_settings) do
-		local value = console[setting]
-
-		if (type(value) == "table") then
-			print(setting, " -> ", changable_settings[setting][2](value))
-		else
-			print(setting, " -> ", value)
-		end
+		print(setting .. " -> " .. changable_settings[setting].get())
 	end
 end
 
@@ -552,10 +558,8 @@ function set(command)
 	local setting = parsed_command[2]
 	local value = parsed_command[3]
 
-	if (changable_settings[setting] == true) then
-		console[setting] = value
-	elseif (type(changable_settings[setting]) == "table") then
-		console[setting] = changable_settings[setting][1](value)
+	if (changable_settings[setting]) then
+		changable_settings[setting].set(value)
 	end
 
 	update_ui(love.graphics.getWidth(), love.graphics.getHeight())
