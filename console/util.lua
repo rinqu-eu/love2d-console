@@ -15,10 +15,45 @@ function util.clamp(value, min, max)
 end
 
 function util.is_hex_string(hex_string)
+	if (type(hex_string) ~= "string") then
+		return false, "arg #1 -> string expected, got _" .. type(hex_string) .. "_"
+	end
+
+	local len = string.len(hex_string)
+
+	if (len ~= 7 and len ~= 9) then
+		return false, "arg #1 -> length 7 or 9 expected, got _" .. len .. "_"
+	end
+
+	if ((len == 7 and string.find(hex_string, "#%x%x%x%x%x%x") == nil) or
+		(len == 9 and string.find(hex_string, "#%x%x%x%x%x%x%x%x") == nil)) then
+		return false, "arg #1 -> value in format #rrggbb or #rrggbbaa expected, got _" .. hex_string .. "_"
+	end
+
 	return true
 end
 
 function util.is_RGB_table(RGB_table)
+	if (type(RGB_table) ~= "table") then
+		return false, "arg #1 -> table expected, got _" .. type(RGB_table) .. "_"
+	end
+
+	local len = #RGB_table
+
+	if (len < 3 or len > 4) then
+		return false, "arg #1 -> length 3 or 4 expected, got _" .. len .. "_"
+	end
+
+	for i = 1, len do
+		if (type(RGB_table[i]) ~= "number") then
+			return false, "arg #1[" .. i .. "] -> number expected, got _" .. type(RGB_table[i]) .. "_"
+		end
+
+		if (RGB_table[i] > 1 or RGB_table[i] < 0) then
+			return false, "arg #1[" .. i .. "] -> value between 0 and 1 expected, got _" .. RGB_table[i] .. "_"
+		end
+	end
+
 	return true
 end
 
