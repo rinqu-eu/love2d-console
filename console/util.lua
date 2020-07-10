@@ -14,7 +14,7 @@ function util.clamp(value, min, max)
 	return value
 end
 
-function util.is_hex_string(hex_string)
+function util.is_valid_hex_string(hex_string)
 	if (type(hex_string) ~= "string") then
 		return false, "arg #1 -> string expected, got _" .. type(hex_string) .. "_"
 	end
@@ -33,7 +33,7 @@ function util.is_hex_string(hex_string)
 	return true
 end
 
-function util.is_rgb_table(rgb_table)
+function util.is_valid_rgb_table(rgb_table)
 	if (type(rgb_table) ~= "table") then
 		return false, "arg #1 -> table expected, got _" .. type(rgb_table) .. "_"
 	end
