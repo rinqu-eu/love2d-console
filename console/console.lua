@@ -16,6 +16,11 @@ local utf8 = require(path_req .. ".utf8")
 local util = require(path_req .. ".util")
 local parse = require(path_req .. ".parse")
 
+local CURSOR_STYLE = {
+	BLOCK = "block",
+	LINE = "line"
+}
+
 font = love.graphics.newFont(path_load .. "/font/FiraCode.ttf", 13)
 font_w = font:getWidth(" ")
 font_h = font:getHeight()
@@ -25,7 +30,7 @@ selected_color = util.to_rgb_table("#ABABAB7F")
 
 cursor_block_color = util.to_rgb_table("#FFFFFF7F")
 cursor_line_color = util.to_rgb_table("#FFFFFFFF")
-cursor_style = "block" -- "block" or "line"
+cursor_style = CURSOR_STYLE.BLOCK
 cursor_blink_duration = 0.5
 
 output_jump_by = 7
@@ -521,23 +526,71 @@ end
 local changable_settings = {
 	["background_color"] = {
 		get = function() return util.to_hex_string(background_color) end,
-		set = function(value) local success, err = util.is_valid_hex_string(value) if (not success) then print(err) return end background_color = util.to_rgb_table(value) end
+		set = function(value) local success, error = util.is_valid_hex_string(value) if (not success) then err(error) return end background_color = util.to_rgb_table(value) end
 	},
 	["selected_color"] = {
 		get = function() return util.to_hex_string(selected_color) end,
-		set = function(value) local success, err = util.is_valid_hex_string(value) if (not success) then print(err) return end selected_color = util.to_rgb_table(value) end
+		set = function(value) local success, error = util.is_valid_hex_string(value) if (not success) then err(error) return end selected_color = util.to_rgb_table(value) end
 	},
 	["cursor_block_color"] = {
 		get = function() return util.to_hex_string(cursor_block_color) end,
-		set = function(value) local success, err = util.is_valid_hex_string(value) if (not success) then print(err) return end cursor_block_color = util.to_rgb_table(value) end,
+		set = function(value) local success, error = util.is_valid_hex_string(value) if (not success) then err(error) return end cursor_block_color = util.to_rgb_table(value) end,
 	},
 	["cursor_line_color"] = {
 		get = function() return util.to_hex_string(cursor_line_color) end,
-		set = function(value) local success, err = util.is_valid_hex_string(value) if (not success) then print(err) return end cursor_line_color = util.to_rgb_table(value) end,
+		set = function(value) local success, error = util.is_valid_hex_string(value) if (not success) then err(error) return end cursor_line_color = util.to_rgb_table(value) end,
 	},
-	["cursor_style"] = nil,
-	["cursor_blink_duration"] = nil,
-	["output_jump_by"] = nil,
+	["cursor_style"] = {
+		get = function() return cursor_style end,
+		set = function(value)
+			if (value == CURSOR_STYLE.BLOCK) then
+				cursor_style = CURSOR_STYLE.BLOCK
+				info("cursor style set to: " .. cursor_style)
+			elseif (value == CURSOR_STYLE.LINE) then
+				cursor_style = CURSOR_STYLE.LINE
+				info("cursor style set to: " .. cursor_style)
+			else
+				local styles = {}
+				for _, style in pairs(CURSOR_STYLE) do
+					table.insert(styles, style)
+				end
+				err("invalid cursor style: " .. value)
+				info("valid cursor styles: " .. table.concat(styles, ", "))
+			end
+		end
+	},
+	["cursor_blink_duration"] = {
+		get = function() return cursor_blink_duration end,
+		set = function(value)
+			value = tonumber(value)
+
+			if (type(value) ~= "number") then
+				err("number expected, got " .. type(value))
+				return
+			end
+			if (value < 0 or value > 1) then
+				warn("value expected between 0 and 1")
+			end
+			cursor_blink_duration = util.clamp(value, 0, 1)
+			info("cursor blink duration set to " .. cursor_blink_duration)
+		end
+	},
+	["output_jump_by"] = {
+		get = function() return output_jump_by end,
+		set = function(value)
+			value = tonumber(value)
+
+			if (type(value) ~= "number") then
+				err("number expected, got " .. type(value))
+				return
+			end
+			if (value < 2 or value > 10) then
+				warn("value expected between 2 and 10")
+			end
+			output_jump_by = math.floor(util.clamp(value, 2, 10))
+			info("output jump by set to " .. output_jump_by)
+		end
+	},
 	["toggle_key"] = nil,
 	["color_info"] = nil,
 	["color_warn"] = nil,
@@ -732,9 +785,9 @@ function update_ui(w, h)
 	ui.selected = {x = left_pad + font_w, y = bottom_line_offset, w = 0, h = font_h, color = selected_color, visible = false}
 	ui.cursor_counter = {x = w - 16 * font_w, y = ui.background.h - 4}
 
-	if (cursor_style == "block") then
+	if (cursor_style == CURSOR_STYLE.BLOCK) then
 		ui.cursor = {x = left_pad + font_w, y = bottom_line_offset, w = font_w, h = font_h, color = cursor_block_color, visible = true}
-	elseif (cursor_style == "line") then
+	elseif (cursor_style == CURSOR_STYLE.LINE) then
 		ui.cursor = {x = left_pad + font_w, y = bottom_line_offset, w = 1, h = font_h, color = cursor_line_color, visible = true}
 	else
 		assert(false, 'suported cursor styles: "block" or "line"')
