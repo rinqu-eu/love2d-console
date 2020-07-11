@@ -591,13 +591,68 @@ local changable_settings = {
 			info("output jump by set to " .. output_jump_by)
 		end
 	},
-	["toggle_key"] = nil,
+	["toggle_key"] = {
+		get = function() return toggle_key end,
+		set = function(value)
+			if (type(value) ~= "string") then
+				err("string expected, got " .. type(value))
+			end
+			if (string.len(value) ~= 1) then
+				err("single key expected")
+				return
+			end
+			toggle_key = value
+			info("toggle key set to " .. toggle_key)
+		end
+	},
 	["color_info"] = nil,
 	["color_warn"] = nil,
 	["color_err"] = nil,
 	["color_com"] = nil,
-	["scroll_output_on_exec"] = nil,
-	["expose_output_functions"] = nil
+	["scroll_output_on_exec"] = {
+		get = function() return tostring(scroll_output_on_exec) end,
+		set = function(value)
+			if (type(value) ~= "string") then
+				err("string expected, got " .. type(value))
+				return
+			end
+			if (value == "true") then
+				scroll_output_on_exec = true
+			elseif (value == "false") then
+				scroll_output_on_exec = false
+			else
+				err("valid options: false, true")
+				return
+			end
+			info("scroll output on exec set to: " .. tostring(scroll_output_on_exec))
+		end
+	},
+	["expose_output_functions"] = {
+		get = function() return tostring(expose_output_functions) end,
+		set = function(value)
+			if (type(value) ~= "string") then
+				err("string expected, got " .. type(value))
+				return
+			end
+			if (value == "true") then
+				expose_output_functions = true
+				_G.warn = warn
+				_G.err = err
+				_G.info = info
+				_G.cprint = cprint
+			elseif (value == "false") then
+				expose_output_functions = false
+				_G.warn = nil
+				_G.err = nil
+				_G.info = nil
+				_G.cprint = nil
+			else
+				err("valid options: false, true")
+				return
+			end
+			info("expose output functions set to: " .. tostring(expose_output_functions))
+		end,
+	}
 }
 
 function list()
