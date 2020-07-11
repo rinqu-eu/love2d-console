@@ -142,10 +142,6 @@ function parse.command(command)
 		end
 	end
 
-	for i, fragment in ipairs(parsed_command) do
-		print("_" .. fragment  .. "_")
-	end
-
 	return parsed_command
 end
 
