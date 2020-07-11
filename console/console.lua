@@ -891,11 +891,7 @@ end
 function load_history_from_files()
 	local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "r")
 
-	if (f_history == nil) then
-		f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "w")
-		f_history:close()
-		f_history = nil
-	else
+	if (f_history ~= nil) then
 		local line = f_history:read("*line")
 		while (line ~= nil) do
 			table.insert(history_buffer, line)
