@@ -911,6 +911,39 @@ function load_history_from_files()
 	f_history:close()
 	f_history = nil
 end
+
+function save_settings_to_file()
+	local settings_file = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/settings.txt", "w+")
+
+	if (settings_file == nil) then
+		return
+	end
+
+	for setting, _ in pairs(changable_settings) do
+		settings_file:write(setting .. " " .. changable_settings[setting].get() .. "\n")
+	end
+
+	settings_file:close()
+end
+
+function load_settings_from_file()
+	local settings_file = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/settings.txt", "r")
+
+	if (settings_file == nil) then
+		return
+	end
+
+	local line = settings_file:read("*line")
+
+	while (line ~= nil) do
+		set("$set " .. line)
+		line = settings_file:read("*line")
+	end
+
+	settings_file:close()
+	settings_file = nil
+
+end
 -- #endregion save/load files
 
 -- #region hooks and overrides
@@ -928,6 +961,7 @@ function hook_close()
 
 	_G.love.quit = function(...)
 		save_history_to_file()
+		save_settings_to_file()
 
 		if (unhooked.quit ~= nil) then
 			unhooked.quit(...)
@@ -1025,6 +1059,8 @@ end
 -- #endregion hooks and overrides
 
 load_history_from_files()
+load_settings_from_file()
+clear_output_history()
 hook_print()
 hook_close()
 add_to_output(git_link)
