@@ -72,8 +72,8 @@ end
 
 function util.to_hex_string(rgb_table)
 	local r = string.format("%02x", util.clamp(rgb_table[1], 0, 1) * 255)
-	local b = string.format("%02x", util.clamp(rgb_table[2], 0, 1) * 255)
-	local g = string.format("%02x", util.clamp(rgb_table[3], 0, 1) * 255)
+	local g = string.format("%02x", util.clamp(rgb_table[2], 0, 1) * 255)
+	local b = string.format("%02x", util.clamp(rgb_table[3], 0, 1) * 255)
 	local a = ""
 
 	if (#rgb_table == 4) then
