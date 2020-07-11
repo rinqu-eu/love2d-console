@@ -879,6 +879,11 @@ end
 -- #region save/load files
 function save_history_to_file()
 	local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "w+")
+
+	if (f_history == nil) then
+		return
+	end
+
 	local low = math.max(1, #history_buffer - 30 + 1)
 
 	for i = low, #history_buffer do
@@ -891,16 +896,20 @@ end
 function load_history_from_files()
 	local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "r")
 
-	if (f_history ~= nil) then
-		local line = f_history:read("*line")
-		while (line ~= nil) do
-			table.insert(history_buffer, line)
-			line = f_history:read("*line")
-		end
-		history_idx = #history_buffer + 1
-		f_history:close()
-		f_history = nil
+	if (f_history == nil) then
+		return
 	end
+
+	local line = f_history:read("*line")
+
+	while (line ~= nil) do
+		table.insert(history_buffer, line)
+		line = f_history:read("*line")
+	end
+
+	history_idx = #history_buffer + 1
+	f_history:close()
+	f_history = nil
 end
 -- #endregion save/load files
 
