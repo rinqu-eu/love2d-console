@@ -876,6 +876,38 @@ function draw_ui()
 end
 -- #endregion ui
 
+-- #region save/load files
+function save_history_to_file()
+	local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "w+")
+	local low = math.max(1, #history_buffer - 30 + 1)
+
+	for i = low, #history_buffer do
+		f_history:write(history_buffer[i] .. "\n")
+	end
+
+	f_history:close()
+end
+
+function load_history_from_files()
+	local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "r")
+
+	if (f_history == nil) then
+		f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "w")
+		f_history:close()
+		f_history = nil
+	else
+		local line = f_history:read("*line")
+		while (line ~= nil) do
+			table.insert(history_buffer, line)
+			line = f_history:read("*line")
+		end
+		history_idx = #history_buffer + 1
+		f_history:close()
+		f_history = nil
+	end
+end
+-- #endregion save/load files
+
 -- #region hooks and overrides
 function hook_print()
 	unhooked.print = print
@@ -890,13 +922,7 @@ function hook_close()
 	unhooked.quit = love.quit
 
 	_G.love.quit = function(...)
-		local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "w+")
-		local low = math.max(1, #history_buffer - 30 + 1)
-
-		for i = low, #history_buffer do
-			f_history:write(history_buffer[i] .. "\n")
-		end
-		f_history:close()
+		save_history_to_file()
 
 		if (unhooked.quit ~= nil) then
 			unhooked.quit(...)
@@ -993,24 +1019,7 @@ function unhook()
 end
 -- #endregion hooks and overrides
 
-do
-	local f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "r")
-	if (f_history == nil) then
-		f_history = io.open(love.filesystem.getSource() .. "/" .. path_load .. "/history.txt", "w")
-		f_history:close()
-		f_history = nil
-	else
-		line = f_history:read("*line")
-		while (line ~= nil) do
-			table.insert(history_buffer, line)
-			line = f_history:read("*line")
-		end
-		history_idx = #history_buffer + 1
-		f_history:close()
-		f_history = nil
-	end
-end
-
+load_history_from_files()
 hook_print()
 hook_close()
 add_to_output(git_link)
