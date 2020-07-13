@@ -605,10 +605,62 @@ local changable_settings = {
 			info("toggle key set to " .. toggle_key)
 		end
 	},
-	["color_info"] = nil,
-	["color_warn"] = nil,
-	["color_err"] = nil,
-	["color_com"] = nil,
+	["color_info"] = {
+		get = function() return color_info end,
+		set = function(value)
+			local success, error = util.is_valid_hex_string(value)
+
+			if (not success) then
+				err(error)
+				return
+			end
+
+			color_info = value
+			color_info_p = string.sub(value, 2)
+		end
+	},
+	["color_warn"] = {
+		get = function() return color_warn end,
+		set = function(value)
+		local success, error = util.is_valid_hex_string(value)
+
+		if (not success) then
+			err(error)
+			return
+		end
+
+		color_warn = value
+		color_warn_p = string.sub(value, 2)
+	end,
+	},
+	["color_err"] = {
+		get = function() return color_err end,
+		set = function(value)
+		local success, error = util.is_valid_hex_string(value)
+
+		if (not success) then
+			err(error)
+			return
+		end
+
+		color_err = value
+		color_err_p = string.sub(value, 2)
+	end,
+	},
+	["color_com"] = {
+		get = function() return color_com end,
+		set = function(value)
+		local success, error = util.is_valid_hex_string(value)
+
+		if (not success) then
+			err(error)
+			return
+		end
+
+		color_com = value
+		color_com_p = string.sub(value, 2)
+	end,
+	},
 	["scroll_output_on_exec"] = {
 		get = function() return tostring(scroll_output_on_exec) end,
 		set = function(value)
