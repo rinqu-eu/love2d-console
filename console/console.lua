@@ -37,10 +37,10 @@ output_jump_by = 7
 
 toggle_key = "`"
 
-color_info = "429bf4ff"
-color_warn = "cecb2fff"
-color_err = "ea2a2aff"
-color_com = "00cc00ff"
+color_info = "#429BF4FF"
+color_warn = "#CECB2FFF"
+color_err = "#EA2A2AFF"
+color_com = "#00CC00FF"
 
 is_open = false
 unhooked = {}
@@ -690,7 +690,7 @@ function exec_input_buffer()
 	end
 
 	add_to_history(input_buffer)
-	add_to_output("|c" .. color_com .. ">|r" .. input_buffer)
+	add_to_output("|c" .. color_com_p .. ">|r" .. input_buffer)
 
 	if (utf8.sub(input_buffer, 1, 1) == "$") then
 		local space_idx = utf8.find(input_buffer, " ")
@@ -721,15 +721,15 @@ end
 -- #endregion special commands
 
 function warn(...)
-	add_to_output("|c" .. color_warn .. "warning:|r", ...)
+	add_to_output("|c" .. color_warn_p .. "warning:|r", ...)
 end
 
 function err(...)
-	add_to_output("|c" .. color_err .. "error:|r", ...)
+	add_to_output("|c" .. color_err_p .. "error:|r", ...)
 end
 
 function info(...)
-	add_to_output("|c" .. color_info .. "info:|r", ...)
+	add_to_output("|c" .. color_info_p .. "info:|r", ...)
 end
 
 function cprint(color, ...)
@@ -873,6 +873,13 @@ function draw_ui()
 		love.graphics.setColor(ui.cursor.color)
 		love.graphics.rectangle("fill", ui.cursor.x, ui.cursor.y, ui.cursor.w, ui.cursor.h)
 	end
+end
+
+function convert_to_print_colors()
+	color_com_p = string.sub(color_com, 2)
+	color_err_p = string.sub(color_err, 2)
+	color_warn_p = string.sub(color_warn, 2)
+	color_info_p = string.sub(color_info, 2)
 end
 -- #endregion ui
 
@@ -1058,6 +1065,7 @@ function unhook()
 end
 -- #endregion hooks and overrides
 
+convert_to_print_colors()
 load_history_from_files()
 load_settings_from_file()
 clear_output_history()
