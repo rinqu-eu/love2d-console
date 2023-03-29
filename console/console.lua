@@ -464,16 +464,21 @@ end
 -- #endregion history
 
 -- #region output
-function add_to_output(...)
-	local arg = {...}
-	local narg = select("#", ...)
-
-	for i = 1, narg do
-		arg[i] = tostring(arg[i])
+function splitString(...)
+	local lines = {}
+	for _, str in ipairs({...}) do
+		for line in str:gmatch("[^\r\n]+") do
+			table.insert(lines, line)
+		end
 	end
+	return lines
+end  
 
-	msg = parse.color(table.concat(arg, " "))
-	table.insert(output_buffer, msg)
+function add_to_output(...)
+	for k, arg in ipairs(splitString(...)) do
+		msg = parse.color(table.concat({arg}, " "))
+		table.insert(output_buffer, msg)
+	end
 end
 
 function clear_output_history()
