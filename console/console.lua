@@ -466,13 +466,29 @@ end
 -- #region output
 function splitString(...)
 	local lines = {}
-	for _, str in ipairs({...}) do
-		for line in str:gmatch("[^\r\n]+") do
-			table.insert(lines, line)
+	for _, arg in ipairs({...}) do
+	  	if arg == nil then
+			-- Handle nil values
+			table.insert(lines, "<nil>")
+	 	 elseif type(arg) ~= "string" and type(arg) ~= "boolean" then
+			-- Handle non-string and non-boolean values
+			table.insert(lines, tostring(arg))
+	  	else
+			local str = tostring(arg)
+		if type(arg) == "boolean" then
+		  -- Convert boolean values to lowercase strings
+		  str = str:lower()
 		end
+			for line in str:gmatch("[^\r\n]*\r?\n") do
+		  	-- Handle empty lines
+		  	if line ~= "\r\n" and line ~= "\n" then
+					table.insert(lines, line)
+		  		end
+			end
+	  	end
 	end
 	return lines
-end  
+end
 
 function add_to_output(...)
 	for k, arg in ipairs(splitString(...)) do
